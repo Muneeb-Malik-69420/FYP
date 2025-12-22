@@ -69,6 +69,11 @@ class FortifyServiceProvider extends ServiceProvider
         return view('auth.two-factor-challenge');
     });
 
+    // Register the Password Confirmation View
+    Fortify::confirmPasswordView(function () {
+        return view('auth.confirm-password');
+    });
+
     // Rate Limiters...
     RateLimiter::for('login', function (Request $request) {
         // ... existing logic ...
