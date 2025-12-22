@@ -11,6 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+    // This tells Laravel where to send AUTHENTICATED users 
+    // who try to visit guest pages (like /login)
+    $middleware->redirectUsersTo('/dashboard'); 
+})
+    ->withMiddleware(function (Middleware $middleware): void {
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
