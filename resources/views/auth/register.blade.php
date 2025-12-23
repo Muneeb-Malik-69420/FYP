@@ -18,9 +18,9 @@
                     <i class="fab fa-google text-red-500 text-lg"></i>
                     <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800">Google</span>
                 </a>
-                <a href="/auth/github" class="flex-1 border border-gray-300 rounded-md py-2 px-4 flex items-center justify-center gap-2 hover:bg-gray-50 transition group">
-                    <i class="fab fa-github text-gray-900 text-lg"></i>
-                    <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800">GitHub</span>
+                <a href="/auth/facebook" class="flex-1 border border-gray-300 rounded-md py-2 px-4 flex items-center justify-center gap-2 hover:bg-gray-50 transition group">
+                    <i class="fab fa-facebook text-gray-900 text-lg"></i>
+                    <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800">Facebook</span>
                 </a>
             </div>
 
