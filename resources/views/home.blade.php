@@ -22,7 +22,7 @@
                 <nav class="flex-1 px-2 space-y-1">
                     <a href="#"
                         class="bg-black/10 text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">
-                        <i class="fas fa-home mr-3 text-white/80"></i> Dashboard
+                        <i class="fas fa-home mr-3 text-white/80"></i> Home
                     </a>
                     <a href="#"
                         class="text-white/70 hover:bg-white/10 hover:text-white group flex items-center px-2 py-2 text-sm font-medium rounded-md">

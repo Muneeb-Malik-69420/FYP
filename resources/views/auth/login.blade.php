@@ -19,29 +19,42 @@
                     <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800">Google</span>
                 </a>
                 <a href="/auth/facebook" class="flex-1 border border-gray-300 rounded-md py-2 px-4 flex items-center justify-center gap-2 hover:bg-gray-50 transition group">
-                    <i class="fab fa-facebook text-gray-900 text-lg"></i>
+                    <i class="fab fa-facebook text-blue-600 text-lg"></i>
                     <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800">Facebook</span>
                 </a>
             </div>
 
-            <span class="text-xs mb-2 text-gray-500">or use your account</span>
+            <span class="text-xs mb-2 text-gray-500">or use your email account</span>
             
-            <input type="email" name="email" placeholder="Email" required value="{{ old('email') }}"
-                class="bg-gray-100 border-none p-3 mt-2 w-full rounded-sm outline-none focus:ring-2 focus:ring-[#007821] transition-shadow @error('email') ring-2 ring-red-500 @enderror" />
-            @error('email')
-                <span class="text-red-500 text-xs text-left w-full pl-1 mb-2">{{ $message }}</span>
-            @enderror
+            <div class="w-full space-y-4">
+                <div class="w-full text-left">
+                    <input type="email" name="email" placeholder="Email" required value="{{ old('email') }}"
+                        class="w-full p-3 rounded-md outline-none transition-all 
+                        {{ $errors->has('email') ? 'bg-red-50 ring-2 ring-red-500' : 'bg-gray-100 focus:ring-2 focus:ring-[#007821]' }}" />
+                    @error('email')
+                        <p class="text-red-500 text-[11px] mt-1 font-semibold ml-1 uppercase tracking-wide">{{ $message }}</p>
+                    @enderror
+                </div>
 
-            <input type="password" name="password" placeholder="Password" required
-                class="bg-gray-100 border-none p-3 mt-2 w-full rounded-sm outline-none focus:ring-2 focus:ring-[#007821] transition-shadow @error('password') ring-2 ring-red-500 @enderror" />
-            @error('password')
-                <span class="text-red-500 text-xs text-left w-full pl-1 mb-2">{{ $message }}</span>
-            @enderror
+                <div class="w-full text-left">
+                    <input type="password" name="password" placeholder="Password" required
+                        class="w-full p-3 rounded-md outline-none transition-all 
+                        {{ $errors->has('password') ? 'bg-red-50 ring-2 ring-red-500' : 'bg-gray-100 focus:ring-2 focus:ring-[#007821]' }}" />
+                    @error('password')
+                        <p class="text-red-500 text-[11px] mt-1 font-semibold ml-1 uppercase tracking-wide">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
 
-            <a href="{{ route('password.request') }}" class="text-gray-600 text-sm no-underline my-4 hover:underline hover:text-[#007821]">Forgot your password?</a>
+            <div class="w-full flex justify-between items-center my-4 px-1">
+                <label class="flex items-center text-xs text-gray-500 cursor-pointer">
+                    <input type="checkbox" name="remember" class="mr-2 accent-[#007821]"> Remember me
+                </label>
+                <a href="{{ route('password.request') }}" class="text-gray-600 text-xs no-underline hover:underline hover:text-[#007821]">Forgot password?</a>
+            </div>
             
             <button type="submit"
-                class="w-full rounded-full border border-[#007821] bg-[#007821] text-white text-xs font-bold py-3 uppercase tracking-widest transition-transform transform active:scale-95 hover:bg-opacity-90 shadow-lg">
+                class="w-full rounded-full bg-[#007821] text-white text-xs font-bold py-3.5 uppercase tracking-widest transition-transform transform active:scale-95 hover:brightness-110 shadow-lg">
                 Sign In
             </button>
 
