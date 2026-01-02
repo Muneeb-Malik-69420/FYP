@@ -54,7 +54,7 @@
             ]);
 
             // Securely assign the validated role using Spatie
-            // $user->assignRole($input['role']);
+            $user->assignRole($input['role']);
 
             return $user;
         }

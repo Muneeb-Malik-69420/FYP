@@ -78,5 +78,7 @@ class FortifyServiceProvider extends ServiceProvider
     RateLimiter::for('login', function (Request $request) {
         // ... existing logic ...
     });
+
+    
     }
 }
