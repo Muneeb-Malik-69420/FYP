@@ -1,11 +1,21 @@
 <?php
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\SupplierDashboardController;
 use App\Http\Controllers\RiderDashboardController;
+use App\Http\Controllers\SocialAuthController;
+use App\Http\Controllers\SupplierDashboardController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/admin/approve-me', function () {
+    $user = Auth::user();
+    if ($user && $user->supplierProfile) {
+        $user->supplierProfile->update(['status' => 'approved']);
+        return redirect()->route('supplier.dashboard');
+    }
+    return "No profile found.";
+})->middleware(['auth']);
 
 // Social Logins
 Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect']);

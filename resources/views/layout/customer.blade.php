@@ -1,4 +1,4 @@
-@extends('layout.customer')
+@extends('layouts.customer')
 
 @section('content')
 <div class="space-y-12">
