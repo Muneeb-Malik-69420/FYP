@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Model;
 
 class FoodItem extends Model
 {
-    protected $fillable = [
+protected $casts = [
+        'expiry_date' => 'datetime',
+    ];    
+protected $fillable = [
         'supplier_id',
         'item_name',
         'description',
@@ -21,4 +25,7 @@ class FoodItem extends Model
     {
         return $this->hasMany(FoodItem::class, 'supplier_id');
     }
+    public function supplier() {
+    return $this->belongsTo(Supplier::class);
+}
 }

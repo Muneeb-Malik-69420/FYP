@@ -43,7 +43,7 @@
     </div>
 
     <main>
-        @yield('content')
+       {{ $slot ?? '' }} @yield('content')
     </main>
 
     @yield('scripts')

@@ -1,10 +1,13 @@
 <?php
+
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RiderDashboardController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\SupplierDashboardController;
+use App\Livewire\AllDeals;
+use App\Livewire\AllRestaurants;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -19,7 +22,7 @@ Route::get('/admin/approve-me', function () {
 
 // Social Logins
 Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect']);
-Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback']); 
+Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback']);
 
 // Public routes
 Route::view('/', 'Customer.public.Home')->name('Home');
@@ -29,28 +32,28 @@ Route::view('/blog', 'Customer.public.blog')->name('Blog');
 
 
 
-Route::middleware('auth')->group( function () {
-    Route::get('dashboard',[DashboardController::class,'index'])->name('dashboard');
+Route::middleware('auth')->group(function () {
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
 
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', [AdminDashboardController::class,'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 });
 
 // Customer routes
 Route::middleware(['auth', 'role:customer'])->group(function () {
-    Route::get('/customer/dashboard', [CustomerDashboardController::class,'index'])->name('customer.dashboard');
+    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
+    Route::get('/deals', AllDeals::class)->name('deals.index');
+    Route::get('/restaurants', AllRestaurants::class)->name('restaurants.index');
 });
 
 // Supplier routes
 Route::middleware(['auth', 'role:supplier'])->group(function () {
-    Route::get('/supplier/dashboard', [SupplierDashboardController::class,'index'])->name('supplier.dashboard');
+    Route::get('/supplier/dashboard', [SupplierDashboardController::class, 'index'])->name('supplier.dashboard');
 });
 
 // Rider routes
 Route::middleware(['auth', 'role:rider'])->group(function () {
-    Route::get('/rider/dashboard', [RiderDashboardController::class,'index'])->name('rider.dashboard');
+    Route::get('/rider/dashboard', [RiderDashboardController::class, 'index'])->name('rider.dashboard');
 });
-
-

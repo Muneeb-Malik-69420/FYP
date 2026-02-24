@@ -11,19 +11,7 @@
     </a>
 
     <div class="hidden lg:flex items-center flex-1 max-w-2xl mx-12">
-        <div class="flex w-full items-center rounded-xl overflow-hidden bg-gray-100 border border-gray-200 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#52c234]/20 transition-all duration-300">
-            
-            <button class="flex items-center gap-2 px-4 py-3 border-r border-gray-200 text-gray-700 hover:bg-gray-200 transition-colors group">
-                <i class="fas fa-map-marker-alt text-[#52c234] text-xs"></i>
-                <span class="text-[10px] font-black uppercase tracking-widest whitespace-nowrap group-hover:text-[#52c234]">Jhelum, PK</span>
-            </button>
-
-            <div class="relative flex-1">
-                <input type="text" placeholder="Search for stores, meals, or bakeries..."
-                    class="w-full bg-transparent pl-10 pr-4 py-3 text-xs text-gray-800 placeholder-gray-500 outline-none font-medium">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[11px] text-gray-600"></i>
-            </div>
-        </div>
+        @livewire('customer-search')
     </div>
 
     <div class="flex items-center gap-8">
@@ -54,9 +42,7 @@
 
             <a href="#" class="relative hover:text-[#52c234] transition-colors">
                 <i class="fas fa-shopping-cart text-xl"></i>
-                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">
-                    0
-                </span>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black h-5 w-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
             </a>
         </div>
 

@@ -1,22 +1,23 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\SupplierProfile;
 use App\Models\FoodItem;
+use App\Models\Supplier;
+use App\Models\SupplierProfile;
 
 class CustomerDashboardController extends Controller
 {
-    public function index()
-    {
-        // 1. Get all suppliers that have been approved
-        $suppliers = SupplierProfile::where('status', 'approved')->get();
+    public function index() {
+    // Door 1: Surplus Items (Available and not expired)
+    $surplusItems = FoodItem::with('supplier')
+        ->where('status', 'available')
+        ->where('expiry_date', '>', now())
+        ->latest()
+        ->take(4)
+        ->get();
 
-        // 2. Get the latest food items that haven't expired yet
-        $items = FoodItem::where('expiry_date', '>', now())
-            ->latest() 
-            ->get();
+    // Door 2: Verified Suppliers
+    $suppliers = Supplier::where('is_verified', true)->get();
 
-        // 3. Pass both variables to your view
-        return view('Customer.private.dashboard', compact('suppliers', 'items'));
-    }
-}
+    return view('customer.private.dashboard', compact('surplusItems', 'suppliers'));
+}}
