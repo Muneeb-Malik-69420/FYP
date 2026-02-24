@@ -10,4 +10,8 @@ class City extends Model
 {
     return $this->hasMany(Supplier::class);
 }
+public function supplierProfiles()
+{
+    return $this->hasMany(SupplierProfile::class); // Assuming this is your profile model name
+}
 }

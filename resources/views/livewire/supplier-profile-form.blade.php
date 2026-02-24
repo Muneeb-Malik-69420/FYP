@@ -1,9 +1,9 @@
-<div>
-    {{-- A good traveler has no fixed plans and is not intent upon arriving. --}}
-    <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+<div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
     <div class="text-center mb-8">
         <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 text-green-600 rounded-full mb-4">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
         </div>
         <h2 class="text-2xl font-extrabold text-gray-900">Setup Your Shop</h2>
         <p class="text-gray-500 mt-1">Fill in these details to unlock your Ecobite Dashboard.</p>
@@ -17,17 +17,31 @@
             @error('business_name') <span class="text-red-500 text-xs mt-1 italic">{{ $message }}</span> @enderror
         </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-gray-700">Business Type</label>
-            <select wire:model="business_type" 
-                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 transition">
-                <option value="">Choose a category...</option>
-                <option value="Bakery">Bakery</option>
-                <option value="Restaurant">Restaurant / Cafe</option>
-                <option value="Grocery">Grocery Store</option>
-                <option value="HomeChef">Home Chef</option>
-            </select>
-            @error('business_type') <span class="text-red-500 text-xs mt-1 italic">{{ $message }}</span> @enderror
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Business Type</label>
+                <select wire:model="business_type" 
+                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 transition">
+                    <option value="">Choose a category...</option>
+                    <option value="Bakery">Bakery</option>
+                    <option value="Restaurant">Restaurant / Cafe</option>
+                    <option value="Grocery">Grocery Store</option>
+                    <option value="HomeChef">Home Chef</option>
+                </select>
+                @error('business_type') <span class="text-red-500 text-xs mt-1 italic">{{ $message }}</span> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Operating City</label>
+                <select wire:model="city_id" 
+                    class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500 transition">
+                    <option value="">Select your city...</option>
+                    @foreach($cities as $city)
+                        <option value="{{ $city->id }}">{{ $city->name }}</option>
+                    @endforeach
+                </select>
+                @error('city_id') <span class="text-red-500 text-xs mt-1 italic">{{ $message }}</span> @enderror
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -38,8 +52,8 @@
                 @error('contact_phone') <span class="text-red-500 text-xs mt-1 italic">{{ $message }}</span> @enderror
             </div>
             <div>
-                <label class="block text-sm font-semibold text-gray-700">Full Address</label>
-                <input type="text" wire:model="address" placeholder="Street, Area, City" 
+                <label class="block text-sm font-semibold text-gray-700">Street Address</label>
+                <input type="text" wire:model="address" placeholder="e.g. Street 4, Satellite Town" 
                     class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-green-500 focus:border-green-500">
                 @error('address') <span class="text-red-500 text-xs mt-1 italic">{{ $message }}</span> @enderror
             </div>
@@ -64,5 +78,4 @@
             Submit Profile for Approval
         </button>
     </form>
-</div>
 </div>

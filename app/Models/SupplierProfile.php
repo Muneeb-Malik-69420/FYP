@@ -25,4 +25,8 @@ class SupplierProfile extends Model
     {
         return $this->hasMany(FoodItem::class, 'supplier_id');
     }
+    public function city()
+{
+    return $this->belongsTo(City::class);
+}
 }
