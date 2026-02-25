@@ -25,23 +25,28 @@ class SupplierProfileForm extends Component
     ];
 
     public function save()
-    {
-        $this->validate();
+{
+    $this->validate();
 
-        $path = $this->license_proof->store('licenses', 'public');
+    // Store the file and get the path
+    $path = $this->license_proof->store('licenses', 'public');
 
-        Supplier::create([
-            'user_id' => Auth::id(),
-            'business_name' => $this->business_name,
-            'business_type' => $this->business_type,
-            'city_id' => $this->city_id, // Links to your cities table
+    // Use updateOrCreate to prevent duplicate supplier rows for one user
+    Supplier::updateOrCreate(
+        ['user_id' => Auth::id()], // Search criteria
+        [
+            'business_name'     => $this->business_name,
+            'business_type'     => $this->business_type,
+            'city_id'           => $this->city_id,
+            'contact_phone'     => $this->contact_phone,
             'business_location' => $this->address,
-            'license_document' => $path,
-            'is_verified' => false, // Approval toggle
-        ]);
+            'license_document'  => $path,
+            'status'            => 'pending', // Make sure this matches your table column
+        ]
+    );
 
-        return redirect()->route('supplier.dashboard');
-    }
+    return redirect()->route('supplier.dashboard');
+}
 
     public function render()
     {

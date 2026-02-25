@@ -17,7 +17,7 @@ class User extends Authenticatable
     use TwoFactorAuthenticatable;
     use HasRoles;
 
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -30,7 +30,7 @@ class User extends Authenticatable
         'phone',
         'name',
         'provider',    // Ensure this is here
-    'provider_id'
+        'provider_id'
     ];
 
     /**
@@ -69,7 +69,10 @@ class User extends Authenticatable
             ->map(fn($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
-    public function supplierProfile() {
-    return $this->hasOne(SupplierProfile::class);
-}
+    
+
+    public function supplier() // Note: lowercase 's' is standard practice
+    {
+        return $this->hasOne(Supplier::class);
+    }
 }

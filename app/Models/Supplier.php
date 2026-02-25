@@ -14,6 +14,8 @@ class Supplier extends Model
         'business_location',
         'license_document',
         'is_verified',
+        'status',
+
     ];
 
     public function city()

@@ -1,4 +1,5 @@
 <?php 
+
 namespace App\Livewire;
 
 use App\Models\FoodItem;
@@ -18,8 +19,14 @@ class SupplierStats extends Component
     #[On('item-added')] 
     public function refreshStats()
     {
-        // Counts items for the logged-in supplier
-        $this->activeListings = FoodItem::where('supplier_id', Auth::user()->supplierProfile->id)->count();
+        $user = Auth::user();
+
+        // 1. Safety check: Does the user even have a supplier record?
+        if ($user && $user->supplier) {
+            $this->activeListings = FoodItem::where('supplier_id', $user->supplier->id)->count();
+        } else {
+            $this->activeListings = 0;
+        }
     }
 
     public function render()

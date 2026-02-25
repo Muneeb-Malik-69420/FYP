@@ -13,11 +13,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/approve-me', function () {
     $user = Auth::user();
-    if ($user && $user->supplierProfile) {
-        $user->supplierProfile->update(['status' => 'approved']);
-        return redirect()->route('supplier.dashboard');
+
+    // 1. Check the 'supplier' relationship instead of 'supplierProfile'
+    if ($user && $user->supplier) {
+
+        // 2. Update the status directly on the supplier record
+        $user->supplier->update([
+            'status' => 'approved'
+        ]);
+
+        return redirect()->route('supplier.dashboard')->with('message', 'You are now approved!');
     }
-    return "No profile found.";
+
+    return "No supplier record found for this user. Please complete the 'Setup Your Shop' form first.";
 })->middleware(['auth']);
 
 // Social Logins

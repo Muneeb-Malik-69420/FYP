@@ -45,7 +45,7 @@ class CustomerSearch extends Component
     {
         return view('livewire.customer-search', [
             // We fetch cities that have an 'approved' profile in your supplier_profiles table
-            'activeCities' => City::whereHas('supplierProfiles', function ($query) {
+            'activeCities' => City::whereHas('suppliers', function ($query) {
                 $query->where('status', 'approved');
             })->orderBy('name', 'asc')->get()
         ]);

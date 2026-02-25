@@ -7,22 +7,22 @@ use Illuminate\Support\Facades\Auth;
 
 class SupplierDashboardController extends Controller
 {
-    // public function index()
-    // {
-    //     return view('Supplier.dashboard'); // Make sure this Blade view exists
-    // }
+
     public function index()
-{
-    $user = Auth::user();
-    $profile = $user->supplierProfile;
+    {
+        $user = Auth::user();
 
-    // Logic: 
-    // 1. No Profile -> status = 'no_profile'
-    // 2. Profile exists -> status = 'pending' or 'approved'
-    return view('supplier.dashboard', [
-        'profile' => $profile,
-        'status' => $profile ? $profile->status : 'no_profile'
-    ]);
-}
-}
+        // Ensure the 'supplier' relationship is fresh
+        $profile = $user->supplier()->first();
 
+        // Safety check: What is actually in the database?
+        // If you just moved 'status' to the suppliers table, 
+        // make sure this column exists there.
+        $status = $profile ? $profile->status : 'no_profile';
+
+        return view('supplier.dashboard', [
+            'profile' => $profile,
+            'status'  => $status
+        ]);
+    }
+}
