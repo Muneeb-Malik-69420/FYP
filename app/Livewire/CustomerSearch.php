@@ -9,7 +9,7 @@ use Livewire\Attributes\Session;
 class CustomerSearch extends Component
 {
     #[Session(key: 'user_city')] 
-    public $city = 'Jhelum';
+    public $city = 'Jhelum'; // This stores the Name for the UI
     
     public $searchQuery = '';
 
@@ -19,26 +19,21 @@ class CustomerSearch extends Component
     }
 
     public function selectCity($cityName)
-{
-    // 1. Update the local property
-    $this->city = $cityName;
-    
-    // 2. Force update the session (important for cross-page persistence)
-    session(['user_city' => $cityName]);
-
-    // 3. Notify other components (Deals, Restaurants)
-    $this->dispatchFilterUpdate();
-    
-    // 4. Optional: Log to check if it's hitting the method
-    // \Log::info("City selected: " . $cityName);
-}
-
-    public function updatedSearchQuery()
     {
-        $this->dispatchFilterUpdate();
+        // 1. Update the property
+        $this->city = $cityName;
+        
+        // 2. Sync to Session (so it survives page refreshes)
+        session(['user_city' => $cityName]);
+
+        // 3. Tell other components to refresh their food lists
+        $this->dispatch('filtersUpdated', [
+            'city' => $this->city,
+            'search' => $this->searchQuery
+        ]);
     }
 
-    private function dispatchFilterUpdate()
+    public function updatedSearchQuery()
     {
         $this->dispatch('filtersUpdated', [
             'city' => $this->city,
@@ -49,11 +44,8 @@ class CustomerSearch extends Component
     public function render()
     {
         return view('livewire.customer-search', [
-            /* IMPORTANT: 
-               1. Changed 'Suppliers' to 'suppliers' (lower case)
-               2. Ensure your City model has the 'suppliers' or 'supplierProfiles' relationship
-            */
-            'activeCities' => City::whereHas('suppliers', function ($query) {
+            // We fetch cities that have an 'approved' profile in your supplier_profiles table
+            'activeCities' => City::whereHas('supplierProfiles', function ($query) {
                 $query->where('status', 'approved');
             })->orderBy('name', 'asc')->get()
         ]);
