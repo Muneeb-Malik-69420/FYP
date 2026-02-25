@@ -1,50 +1,85 @@
 {{-- deals-profile.blade.php --}}
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-    
     @forelse($foodItems as $item)
-        <div class="bg-white rounded-2xl border border-gray-100 p-4 flex justify-between hover:shadow-md transition-shadow cursor-pointer h-[160px]">
+        @php
+            $percentage = 0;
+            if($item->original_price > 0 && $item->discounted_price < $item->original_price) {
+                $percentage = round((($item->original_price - $item->discounted_price) / $item->original_price) * 100);
+            }
+
+            $fallbacks = [
+                'Pizza'       => 'https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=200&auto=format&fit=crop',
+                'Burger'      => 'https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=200&auto=format&fit=crop',
+                'Pasta'       => 'https://images.unsplash.com/photo-1585032226651-759b368d7246?q=80&w=200&auto=format&fit=crop',
+                'Fast Food'   => 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=200&auto=format&fit=crop',
+                'Deals'       => 'https://images.unsplash.com/photo-1543353071-873f17a7a088?q=80&w=200&auto=format&fit=crop',
+            ];
+
+            $imageSrc = $item->image_path 
+                ? asset('storage/' . $item->image_path) 
+                : ($fallbacks[$item->category] ?? 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop');
+        @endphp
+
+        <div class="bg-white rounded-2xl border border-gray-100 p-4 flex justify-between hover:shadow-md transition-shadow cursor-pointer h-[180px]">
             <div class="flex flex-col justify-between py-1 pr-2">
                 <div>
-                    <h3 class="font-bold text-[#1a1a1a] text-[15px] leading-tight mb-1">
+                    {{-- Brand Green Badge --}}
+                    @if($percentage > 0)
+                        <span class="bg-[#52c234]/10 text-[#52c234] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded mb-2 inline-block border border-[#52c234]/20">
+                            {{ $percentage }}% OFF
+                        </span>
+                    @endif
+
+                    {{-- Title: #111827 | Weight: 700 --}}
+                    <h3 class="text-[#111827] font-[700] text-[16px] leading-tight mb-1">
                         {{ $item->item_name }}
                     </h3>
-                    <p class="text-[12px] text-gray-500 line-clamp-2 leading-snug">
+                    
+                    {{-- Description: #4B5563 | Weight: 400 --}}
+                    <p class="text-[#4B5563] font-[400] text-[12px] line-clamp-2 leading-snug italic">
                         {{ $item->description }}
                     </p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[14px] font-bold text-gray-900">
-                        Rs. {{ number_format($item->discounted_price) }}
-                    </span>
-                    @if($item->original_price > $item->discounted_price)
-                        <span class="text-[11px] text-gray-400 line-through">
-                            Rs. {{ number_format($item->original_price) }}
+
+                <div class="space-y-1">
+                    {{-- Quantity: #2E7D32 | Weight: 600 --}}
+                    <p class="text-[11px] font-[600] uppercase tracking-tight {{ $item->quantity < 5 ? 'text-red-600' : 'text-[#2E7D32]' }}">
+                        <i class="fas fa-layer-group mr-1"></i> {{ $item->quantity }} left
+                    </p>
+                    
+                    <div class="flex items-center gap-2">
+                        {{-- Discounted Price: #111111 | Weight: 800 --}}
+                        <span class="text-[18px] font-[800] text-[#111111] tracking-tighter">
+                            Rs. {{ number_format($item->discounted_price) }}
                         </span>
-                    @endif
+                        
+                        {{-- Old Price: #9CA3AF | Weight: 500 --}}
+                        @if($item->original_price > $item->discounted_price)
+                            <span class="text-[11px] text-[#9CA3AF] font-[500] line-through">
+                                Rs. {{ number_format($item->original_price) }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
             <div class="relative flex-shrink-0 w-28 h-28 self-center">
-                {{-- Dynamic Image Logic --}}
-                <img src="{{ $item->image_path ? asset('storage/' . $item->image_path) : 'https://via.placeholder.com/200?text=No+Image' }}" 
+                <img src="{{ $imageSrc }}" 
                      alt="{{ $item->item_name }}"
-                     class="w-full h-full object-cover rounded-xl bg-gray-50">
+                     class="w-full h-full object-cover rounded-xl bg-gray-50 border border-gray-100 shadow-sm">
                 
-                {{-- Add Button with data attributes for JavaScript --}}
+                {{-- Add Button: Brand Green #52c234 --}}
                 <button 
                     onclick="addToBasket({{ $item->id }})"
-                    class="absolute -bottom-2 -right-2 bg-white w-8 h-8 rounded-full shadow-md border border-gray-100 flex items-center justify-center text-pink-600 hover:scale-110 transition-transform active:bg-pink-50"
-                    title="Add to basket"
+                    class="absolute -bottom-2 -right-2 bg-[#52c234] w-9 h-9 rounded-full shadow-lg border-2 border-white flex items-center justify-center text-white hover:scale-110 transition-all active:scale-95"
                 >
                     <i class="fas fa-plus text-xs"></i>
                 </button>
             </div>
         </div>
     @empty
-        {{-- Show this if no items are found in the database --}}
-        <div class="col-span-full py-10 text-center text-gray-400">
-            <p>No food items available at the moment.</p>
+        <div class="col-span-full py-16 text-center">
+            <p class="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">No Fresh Deals Available</p>
         </div>
     @endforelse
-
 </div>
