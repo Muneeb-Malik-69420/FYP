@@ -8,7 +8,7 @@
 
         <div class="relative h-[40vh] w-full bg-gray-900 overflow-hidden">
 
-            <img src="{{ $supplier->getBanner() }}" class="w-full h-full object-cover opacity-60" alt="{{ $supplier->business_name }}">
+            <img src="}" class="w-full h-full object-cover opacity-60" alt="{{ $supplier->business_name }}">
 
             <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/95"></div>
 
@@ -156,7 +156,7 @@
 
                             {{-- CALLING LIVEWIRE COMPONENT --}}
 
-                            @livewire('deals-profile', ['supplier_id' => $supplier->id])
+                            {{-- @livewire('deals-profile', ['supplier_id' => $supplier->id]) --}}
 
 
 
