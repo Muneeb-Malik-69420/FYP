@@ -8,7 +8,7 @@
         
         @if($status == 'no_profile')
             {{-- STATE 1: Registration --}}
-            <div class="max-w-2xl mx-auto py-10">
+            <div>
                 @livewire('supplier-profile-form')
             </div>
 

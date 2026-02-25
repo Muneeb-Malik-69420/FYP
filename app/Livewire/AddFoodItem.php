@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\FoodItem;
+use App\Models\Supplier;
 use App\Models\SupplierProfile;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +23,7 @@ class AddFoodItem extends Component
         ]);
 
         // 1. Fetch the profile from the 'suppliers' table belonging to this user
-        $supplier = SupplierProfile::where('user_id', Auth::id())->first();
+        $supplier = Supplier::where('user_id', Auth::id())->first();
 
         // 2. Critical Check: Does the record exist?
         if (!$supplier) {

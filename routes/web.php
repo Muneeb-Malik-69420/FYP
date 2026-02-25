@@ -6,8 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RiderDashboardController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\SupplierDashboardController;
-use App\Livewire\AllDeals;
-use App\Livewire\AllRestaurants;
+use App\Livewire\RestaurantProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -52,8 +51,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 // Customer routes
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
-    Route::get('/deals', AllDeals::class)->name('deals.index');
-    Route::get('/restaurants', AllRestaurants::class)->name('restaurants.index');
+
+    // This creates the 'restaurants.show' route name that the Blade file is looking for
+    Route::get('/restaurant/{id}', RestaurantProfile::class)
+        ->name('restaurants.show');
 });
 
 // Supplier routes

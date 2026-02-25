@@ -1,109 +1,73 @@
-<main class="pt-10 bg-gray-50 min-h-screen">
-    {{-- Deals Section (Kept as is for now) --}}
-    <section class="py-10 px-10">
-        <div class="container mx-auto">
-            <div class="flex items-end justify-between mb-8">
-                <div>
-                    <span class="text-[#52c234] font-black uppercase tracking-[0.2em] text-[10px]">
-                        Limited Availability in {{ $selectedCity }}
-                    </span>
-                    <h2 class="text-3xl font-black text-gray-900 tracking-tighter mt-1">
-                        Rescue these bites
-                    </h2>
-                </div>
-                <a href="#" class="group text-sm font-bold text-gray-400 hover:text-[#52c234] transition-colors">
-                    View all <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
-                </a>
-            </div>
+<main class="bg-gray-50 min-h-screen pt-[58px]">
+    <div class="w-full pl-4 pr-10 pb-10">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                @forelse($surplusItems as $item)
-                    <div class="bg-white rounded-[2rem] p-4 shadow-sm border border-gray-100 group relative transition-all hover:shadow-md">
-                         <h3 class="text-base font-black text-gray-800 truncate">{{ $item->item_name }}</h3>
-                         <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">{{ $item->supplier->business_name }}</span>
-                         <button class="w-full mt-3 bg-gray-900 text-white text-[10px] font-black uppercase py-2 rounded-xl group-hover:bg-[#52c234] transition-colors">
-                            Rescue
-                         </button>
-                    </div>
-                @empty
-                    {{-- Empty state --}}
-                @endforelse
-            </div>
-        </div>
-    </section>
+        {{-- Keep the filter bar outside the loading container so it doesn't flicker --}}
+        <livewire:business-type-filter />
 
-    {{-- Restaurants Section (Compact & Linked) --}}
-    <section class="py-12 px-10 bg-white rounded-t-[3rem] shadow-[0_-15px_40px_-20px_rgba(0,0,0,0.05)]">
-        <div class="container mx-auto">
-            <div class="mb-10">
-                <h3 class="text-2xl font-black text-gray-900 tracking-tighter">Explore Restaurants</h3>
-                <p class="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-1">Verified Partners in {{ $selectedCity }}</p>
-            </div>
+        <div class="relative mt-4">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @forelse($suppliers as $supplier)
-                    {{-- THE LINK: Wraps the entire card --}}
-                    <a href="#" class="group bg-white rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 flex flex-col h-full relative">
+            {{-- 1. THE SKELETON GRID --}}
+            {{-- We use wire:loading.grid to force the display to be a grid when loading --}}
+            <div wire:loading.grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                @foreach(range(1, 8) as $index)
+                    <div class="bg-white border border-gray-100 flex flex-col h-72 animate-pulse shadow-sm">
+                        {{-- Image placeholder --}}
+                        <div class="h-44 w-full bg-gray-200"></div> 
                         
-                        {{-- Smaller Image Header --}}
-                        <div class="relative h-40 overflow-hidden">
-                            <img src="{{ $supplier->getThumbnail() }}" 
-                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                                 alt="{{ $supplier->business_name }}">
-                            
-                            {{-- Favorite Button (Stopped propagation so it doesn't trigger the link) --}}
-                            <div x-data="{ fav: false }" class="absolute top-4 right-4 z-20">
-                                <button @click.prevent="fav = !fav" 
-                                        class="w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all shadow-sm"
-                                        :class="fav ? 'bg-red-500 text-white' : 'bg-white/90 text-gray-400'">
-                                    <i class="fas fa-heart text-xs" :class="fav ? 'fa-solid' : 'fa-regular'"></i>
-                                </button>
+                        {{-- Content placeholder --}}
+                        <div class="px-3 py-4 flex flex-col gap-3">
+                            <div class="flex justify-between items-center">
+                                <div class="h-4 w-3/4 bg-gray-200 rounded"></div>
+                                <div class="h-3 w-8 bg-gray-200 rounded"></div>
                             </div>
+                            <div class="h-3 w-1/2 bg-gray-100 rounded"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
 
-                            <div class="absolute bottom-4 left-4">
-                                <span class="bg-[#52c234] text-white text-[8px] font-black px-3 py-1 rounded-lg uppercase tracking-widest">
-                                    {{ $supplier->business_type ?? 'Partner' }}
+            {{-- 2. THE ACTUAL DATA GRID --}}
+            {{-- wire:loading.remove hides this entirely while the skeleton grid above shows --}}
+            <div wire:loading.remove class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                @forelse($suppliers as $supplier)
+                    <a href="{{ route('restaurants.show', $supplier->id) }}"
+                        class="group bg-white rounded-none overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col h-full">
+
+                        <div class="relative h-44 w-full overflow-hidden bg-gray-100">
+                            <img src="{{ $supplier->getThumbnail() }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+
+                            <div class="absolute bottom-3 left-3">
+                                <span class="bg-black/60 backdrop-blur-sm text-white text-[7px] font-black px-2 py-1 uppercase tracking-[0.2em]">
+                                    {{ $supplier->business_type }}
                                 </span>
                             </div>
                         </div>
 
-                        {{-- Compact Content --}}
-                        <div class="p-5 flex flex-col flex-grow">
-                            <div class="flex justify-between items-start">
-                                <h4 class="text-xl font-black text-gray-900 leading-tight group-hover:text-[#52c234] transition-colors">
+                        <div class="px-3 py-4 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start gap-2">
+                                <h4 class="text-sm font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#52c234] transition-colors leading-none truncate">
                                     {{ $supplier->business_name }}
                                 </h4>
-                                
-                                <div class="flex items-center gap-1 bg-orange-50 px-2 py-1 rounded-lg">
-                                    <i class="fas fa-star text-orange-400 text-[8px]"></i>
-                                    <span class="text-orange-700 font-black text-[10px]">4.9</span>
+                                <div class="flex items-center gap-1 shrink-0 pt-0.5">
+                                    <i class="fas fa-star text-orange-400 text-[7px]"></i>
+                                    <span class="text-gray-900 font-black text-[9px]">4.9</span>
                                 </div>
                             </div>
-
-                            <div class="flex items-center mt-3 text-gray-400">
-                                <i class="fas fa-map-marker-alt text-[9px] mr-2 text-[#52c234]"></i>
-                                <p class="text-[10px] font-bold uppercase tracking-wider truncate">
+                            <div class="mt-1 flex items-start text-gray-400">
+                                <i class="fas fa-map-marker-alt text-[7px] mr-1.5 mt-0.5 shrink-0"></i>
+                                <p class="text-[8px] font-bold uppercase tracking-widest leading-tight">
                                     {{ $supplier->business_location }}
                                 </p>
-                            </div>
-
-                            {{-- Removed the big footer section --}}
-                            <div class="flex gap-2 mt-4">
-                                <div class="bg-blue-50 text-blue-600 px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider">
-                                    Free Delivery
-                                </div>
-                                <div class="bg-green-50 text-green-600 px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider">
-                                    Eco-Pack
-                                </div>
                             </div>
                         </div>
                     </a>
                 @empty
-                    <div class="col-span-full py-10 text-center text-gray-400 font-bold text-sm italic">
-                        No restaurants found in {{ $selectedCity }}.
+                    <div class="col-span-full py-20 text-left text-gray-300 font-black uppercase text-[10px] tracking-widest">
+                        No active partners found
                     </div>
                 @endforelse
             </div>
         </div>
-    </section>
+    </div>
 </main>

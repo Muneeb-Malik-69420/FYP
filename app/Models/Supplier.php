@@ -42,4 +42,8 @@ class Supplier extends Model
     {
         return $this->belongsTo(City::class);
     }
+    public function foodItems()
+{
+    return $this->hasMany(FoodItem::class);
+}
 }

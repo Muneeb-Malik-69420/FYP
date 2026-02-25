@@ -1,5 +1,5 @@
 <nav id="navbar" 
-    class="fixed top-0 left-0 w-full z-[100] bg-white/95 backdrop-blur-md text-gray-800 shadow-md px-10 flex items-center justify-between py-4 transition-all duration-300">
+    class="fixed top-0 left-0 w-full z-[100] bg-white/95 backdrop-blur-md text-gray-800 shadow-md px-10 flex items-center justify-between py-2.5 transition-all duration-300">
 
     <a href="{{ route('Home') }}" class="flex items-center gap-3 shrink-0 z-50">
         <div class="w-10 h-10 bg-gradient-to-br from-[#52c234] to-[#0f711c] rounded-full flex items-center justify-center text-white shadow-lg">

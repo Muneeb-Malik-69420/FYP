@@ -4,24 +4,19 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Supplier;
-use App\Models\City;
-use App\Models\FoodItem;
 use Livewire\Attributes\On;
 
 class CustomerDashboard extends Component
 {
     public $selectedCity;
     public $searchQuery = '';
+    public $businessType = ''; // <--- Add this
 
     public function mount()
     {
         $this->selectedCity = session('user_city', 'Jhelum');
     }
 
-    /**
-     * Listen for the event from CustomerSearch.
-     * Note: In your CustomerSearch, you passed an array ['city' => ..., 'search' => ...]
-     */
     #[On('filtersUpdated')]
     public function updateFilters($data)
     {
@@ -29,35 +24,38 @@ class CustomerDashboard extends Component
         $this->searchQuery = $data['search'];
     }
 
+    // --- Add this new listener ---
+    #[On('filter-by-type')]
+    public function updateBusinessType($type)
+    {
+        $this->businessType = $type;
+    }
+
     public function render()
     {
-        // 1. Fetch Surplus Items (Deals)
-        $surplusItems = FoodItem::whereHas('supplier', function ($query) {
-            $query->where('status', 'approved') // Only approved suppliers
-                  ->whereHas('city', function ($q) {
-                      $q->where('name', $this->selectedCity);
-                  });
-        })
-        ->when($this->searchQuery, function ($query) {
-            // Note: Ensure your column name is 'name' or 'item_name'
-            $query->where('name', 'like', '%' . $this->searchQuery . '%');
-        })
-        ->with('supplier')
-        ->latest()
-        ->get();
-
-        // 2. Fetch Restaurants
         $suppliers = Supplier::where('status', 'approved')
             ->whereHas('city', function ($query) {
                 $query->where('name', $this->selectedCity);
             })
-            ->when($this->searchQuery, function ($query) {
-                $query->where('business_name', 'like', '%' . $this->searchQuery . '%');
+            // 1. Filter by the specific Business Type (from the new component)
+            ->when($this->businessType, function ($query) {
+                $query->where('business_type', $this->businessType); 
             })
+            // 2. Search by Business Name or Food Item (your existing search)
+            ->when($this->searchQuery, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('business_name', 'like', '%' . $this->searchQuery . '%')
+                      ->orWhereHas('foodItems', function ($foodQ) {
+                          $foodQ->where('item_name', 'like', '%' . $this->searchQuery . '%');
+                      });
+                });
+            })
+            ->with(['foodItems' => function($q) {
+                $q->where('quantity', '>', 0);
+            }])
             ->get();
 
         return view('livewire.customer-dashboard', [
-            'surplusItems' => $surplusItems,
             'suppliers' => $suppliers,
         ]);
     }
