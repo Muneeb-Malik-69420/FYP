@@ -1,3 +1,4 @@
+<div>
 <div class="flex w-full items-center rounded-xl bg-white border border-gray-200 shadow-sm focus-within:ring-2 focus-within:ring-[#52c234]/20 transition-all duration-300">
     
     <div x-data="{ open: false }" class="relative border-r border-gray-100 bg-gray-50 min-w-[150px] rounded-l-xl">
@@ -18,13 +19,14 @@
                 @forelse($activeCities as $c)
                     <button 
                         type="button"
-                        {{-- THE FIX: Direct JavaScript call to Livewire --}}
+                        {{-- ADDED WIRE:KEY HERE --}}
+                        wire:key="city-select-{{ $c->id }}"
                         @click="$wire.selectCity('{{ $c->name }}'); open = false;"
-                        class="w-full text-left px-3 py-2.5 text-[11px] font-bold rounded-lg transition-colors flex items-center justify-between cursor-pointer {{ $city == $c->name ? 'text-[#52c234] bg-green-50' : 'text-gray-600 hover:bg-gray-50' }}">
+                        class="w-full text-left px-3 py-2.5 text-[11px] font-bold rounded-lg transition-colors flex items-center justify-between cursor-pointer {{ strtolower($city) == strtolower($c->name) ? 'text-[#52c234] bg-green-50' : 'text-gray-600 hover:bg-gray-50' }}">
                         
                         <span>{{ strtoupper($c->name) }}</span>
 
-                        @if($city == $c->name)
+                        @if(strtolower($city) == strtolower($c->name))
                             <i class="fas fa-check text-[10px]"></i>
                         @endif
                     </button>
@@ -46,4 +48,5 @@
             class="w-full bg-transparent pl-11 pr-4 py-3 text-xs text-gray-800 border-none focus:ring-0 placeholder-gray-400 font-medium"
         >
     </div>
+</div>
 </div>

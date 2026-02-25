@@ -4,33 +4,26 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\City;
-use Livewire\Attributes\Session;
 
 class CustomerSearch extends Component
 {
-    #[Session(key: 'user_city')] 
-    public $city = 'Jhelum'; // This stores the Name for the UI
-    
+    public $city;
     public $searchQuery = '';
 
     public function mount()
     {
+        // Default to Session value OR Jhelum if empty
         $this->city = session('user_city', 'Jhelum');
     }
 
     public function selectCity($cityName)
     {
-        // 1. Update the property
-        $this->city = $cityName;
-        
-        // 2. Sync to Session (so it survives page refreshes)
+        // 1. Set the session
         session(['user_city' => $cityName]);
 
-        // 3. Tell other components to refresh their food lists
-        $this->dispatch('filtersUpdated', [
-            'city' => $this->city,
-            'search' => $this->searchQuery
-        ]);
+        // 2. Instead of a silent dispatch, redirect to the same page
+        // This clears any "stuck" state and forces Jhelum to disappear
+        return redirect(request()->header('Referer'));
     }
 
     public function updatedSearchQuery()
@@ -44,7 +37,6 @@ class CustomerSearch extends Component
     public function render()
     {
         return view('livewire.customer-search', [
-            // We fetch cities that have an 'approved' profile in your supplier_profiles table
             'activeCities' => City::whereHas('suppliers', function ($query) {
                 $query->where('status', 'approved');
             })->orderBy('name', 'asc')->get()
