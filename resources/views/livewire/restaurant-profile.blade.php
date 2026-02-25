@@ -104,9 +104,9 @@
 
             <div class="max-w-7xl mx-auto px-6 flex items-center gap-8 w-full">
 
-                <div class="relative w-72 shrink-0">
+                <div class="relative w-72 shrink-0 text-[#1a1a1a]">
 
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-[10px]"></i>
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#1a1a1a] text-[10px]"></i>
 
                     <input type="text" placeholder="FIND A DEAL..."
                         class="w-full bg-gray-50 border border-gray-100 rounded-sm py-2 pl-10 pr-4 text-[10px] font-bold tracking-widest focus:ring-1 focus:ring-black focus:bg-white transition-all outline-none uppercase">
@@ -119,7 +119,7 @@
 
                     @foreach (['All Deals', 'Flash Sales', 'Combos', 'Weekly Specials', 'First Order'] as $category)
                         <a href="#"
-                            class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors">
+                            class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a] hover:text-black transition-colors">
 
                             {{ $category }}
 
