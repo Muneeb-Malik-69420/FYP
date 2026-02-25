@@ -9,13 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up()
-{
-    Schema::table('suppliers', function (Blueprint $table) {
-        // This links the supplier to your cities table
-        $table->foreignId('city_id')->nullable()->constrained()->onDelete('cascade');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('suppliers', function (Blueprint $table) {
+            $table->string('cover_photo')->nullable()->after('business_name');
+        });
+    }
 
     /**
      * Reverse the migrations.

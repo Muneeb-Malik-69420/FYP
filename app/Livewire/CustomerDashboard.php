@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\SurplusItem;
 use App\Models\Supplier;
 use App\Models\City;
 use App\Models\FoodItem;
@@ -16,13 +15,12 @@ class CustomerDashboard extends Component
 
     public function mount()
     {
-        // Default to Jhelum or session value
         $this->selectedCity = session('user_city', 'Jhelum');
     }
 
     /**
-     * This listens for the 'filtersUpdated' event dispatched 
-     * from your CustomerSearch component.
+     * Listen for the event from CustomerSearch.
+     * Note: In your CustomerSearch, you passed an array ['city' => ..., 'search' => ...]
      */
     #[On('filtersUpdated')]
     public function updateFilters($data)
@@ -33,31 +31,30 @@ class CustomerDashboard extends Component
 
     public function render()
     {
-        $cityModel = City::where('name', $this->selectedCity)->first();
-
-$surplusItems = FoodItem::whereHas('supplier', function($q) use ($cityModel) {
-    $q->where('city_id', $cityModel->id ?? 0);
-})->get();
-        // 1. Filter Surplus Items based on City and Search
-        $surplusItems = FoodItem::whereHas('supplier.city', function ($query) {
-            $query->where('name', $this->selectedCity);
+        // 1. Fetch Surplus Items (Deals)
+        $surplusItems = FoodItem::whereHas('supplier', function ($query) {
+            $query->where('status', 'approved') // Only approved suppliers
+                  ->whereHas('city', function ($q) {
+                      $q->where('name', $this->selectedCity);
+                  });
         })
         ->when($this->searchQuery, function ($query) {
-            $query->where('item_name', 'like', '%' . $this->searchQuery . '%');
+            // Note: Ensure your column name is 'name' or 'item_name'
+            $query->where('name', 'like', '%' . $this->searchQuery . '%');
         })
-        ->with('supplier') // Eager load for performance
+        ->with('supplier')
         ->latest()
         ->get();
 
-        // 2. Filter Suppliers based on City and Search
-        $suppliers = Supplier::whereHas('city', function ($query) {
-            $query->where('name', $this->selectedCity);
-        })
-        ->when($this->searchQuery, function ($query) {
-            $query->where('business_name', 'like', '%' . $this->searchQuery . '%');
-        })
-        ->where('is_verified', true)
-        ->get();
+        // 2. Fetch Restaurants
+        $suppliers = Supplier::where('status', 'approved')
+            ->whereHas('city', function ($query) {
+                $query->where('name', $this->selectedCity);
+            })
+            ->when($this->searchQuery, function ($query) {
+                $query->where('business_name', 'like', '%' . $this->searchQuery . '%');
+            })
+            ->get();
 
         return view('livewire.customer-dashboard', [
             'surplusItems' => $surplusItems,
