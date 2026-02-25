@@ -32,31 +32,36 @@ class CustomerDashboard extends Component
     }
 
     public function render()
-    {
-        $suppliers = Supplier::where('status', 'approved')
-            ->whereHas('city', function ($query) {
-                $query->where('name', $this->selectedCity);
-            })
-            // 1. Filter by the specific Business Type (from the new component)
-            ->when($this->businessType, function ($query) {
-                $query->where('business_type', $this->businessType); 
-            })
-            // 2. Search by Business Name or Food Item (your existing search)
-            ->when($this->searchQuery, function ($query) {
-                $query->where(function ($q) {
-                    $q->where('business_name', 'like', '%' . $this->searchQuery . '%')
-                      ->orWhereHas('foodItems', function ($foodQ) {
-                          $foodQ->where('item_name', 'like', '%' . $this->searchQuery . '%');
-                      });
-                });
-            })
-            ->with(['foodItems' => function($q) {
-                $q->where('quantity', '>', 0);
-            }])
-            ->get();
+{
+    $suppliers = Supplier::where('status', 'approved')
+        // Ensure the supplier has at least one food item with quantity > 0
+        ->whereHas('foodItems', function ($q) {
+            $q->where('quantity', '>', 0);
+        })
+        ->whereHas('city', function ($query) {
+            $query->where('name', $this->selectedCity);
+        })
+        ->when($this->businessType, function ($query) {
+            $query->where('business_type', $this->businessType); 
+        })
+        ->when($this->searchQuery, function ($query) {
+            $query->where(function ($q) {
+                $q->where('business_name', 'like', '%' . $this->searchQuery . '%')
+                  ->orWhereHas('foodItems', function ($foodQ) {
+                      $foodQ->where('item_name', 'like', '%' . $this->searchQuery . '%')
+                            ->where('quantity', '>', 0); // Keep search relevant to active items
+                  });
+            });
+        })
+        // Also keep 'with' so the items are eager-loaded for the view
+        ->with(['foodItems' => function($q) {
+            $q->where('quantity', '>', 0);
+        }])
+        ->get();
 
-        return view('livewire.customer-dashboard', [
-            'suppliers' => $suppliers,
-        ]);
-    }
+    return view('livewire.customer-dashboard', [
+        'suppliers' => $suppliers,
+    ]);
+}
+    
 }
