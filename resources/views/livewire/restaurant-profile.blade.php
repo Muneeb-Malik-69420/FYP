@@ -62,13 +62,13 @@
 
             {{-- Category Nav --}}
             <nav class="flex items-center gap-8 overflow-x-auto no-scrollbar scroll-smooth h-full">
-                @foreach (['All Deals', 'Flash Sales', 'Combos', 'Weekly Specials', 'First Order'] as $category)
-                    <a href="#"
-                        class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a] hover:text-green-600 transition-colors py-2">
-                        {{ $category }}
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-green-500 transition-all group-hover:w-full"></span>
-                    </a>
-                @endforeach
+                @foreach ($categories as $cat)
+                <a href="#{{ Str::slug($cat) }}"
+                    class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a] hover:text-[#52c234] transition-colors py-2">
+                    {{ $cat }}
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#52c234] transition-all group-hover:w-full"></span>
+                </a>
+            @endforeach
             </nav>
         </div>
     </div>
