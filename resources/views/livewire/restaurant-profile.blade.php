@@ -49,10 +49,10 @@
     <div class="sticky top-[60px] z-40 bg-white border-b border-gray-200 h-[70px] flex items-center shadow-sm">
         <div class="max-w-7xl mx-auto px-6 flex items-center gap-8 w-full">
             
-            {{-- Pro Search Input --}}
+            {{-- Pro Search Input linked to Livewire --}}
             <div class="relative w-80 shrink-0 group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-600 transition-colors text-xs"></i>
-                <input type="text" 
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#52c234] transition-colors text-xs"></i>
+                <input wire:model.live.debounce.300ms="search" type="text" 
                     placeholder="FIND A DEAL..."
                     class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg py-2.5 pl-11 pr-4 text-[11px] font-black tracking-widest text-black placeholder-gray-400 focus:ring-0 focus:border-black focus:bg-white transition-all outline-none uppercase shadow-inner"
                 >
@@ -60,15 +60,21 @@
 
             <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
 
-            {{-- Category Nav --}}
+            {{-- Dynamic Category Nav with Active States --}}
             <nav class="flex items-center gap-8 overflow-x-auto no-scrollbar scroll-smooth h-full">
                 @foreach ($categories as $cat)
-                <a href="#{{ Str::slug($cat) }}"
-                    class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] text-[#1a1a1a] hover:text-[#52c234] transition-colors py-2">
-                    {{ $cat }}
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-[#52c234] transition-all group-hover:w-full"></span>
-                </a>
-            @endforeach
+                    <button 
+                        wire:click="setCategory('{{ $cat }}')"
+                        {{-- Use a standard HTML anchor behavior for the scroll jump --}}
+                        onclick="window.location.hash='#{{ Str::slug($cat) }}'"
+                        class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] transition-colors py-2 {{ $activeCategory === $cat ? 'text-[#52c234]' : 'text-[#1a1a1a] hover:text-[#52c234]' }}">
+                        
+                        {{ $cat }}
+                        
+                        {{-- Active Underline synced with $activeCategory --}}
+                        <span class="absolute bottom-0 left-0 h-0.5 bg-[#52c234] transition-all {{ $activeCategory === $cat ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
+                    </button>
+                @endforeach
             </nav>
         </div>
     </div>
@@ -81,10 +87,6 @@
                 {{-- LEFT COLUMN: Deals --}}
                 <div class="w-full lg:flex-grow lg:pr-12 pt-8 pb-20 lg:h-[calc(100vh-130px)] lg:overflow-y-auto custom-scrollbar">
                     <div id="deals-container" class="mb-16">
-                        {{-- <h2 class="text-[11px] font-black uppercase tracking-[0.4em] text-gray-900 mb-8 flex items-center gap-4">
-                            <span class="w-12 h-0.5 bg-[#52c234]"></span> Featured Deals
-                        </h2> --}}
-
                         @livewire('deals-profile', ['supplier_id' => $supplier->id])
                     </div>
                 </div>
