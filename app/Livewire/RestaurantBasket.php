@@ -51,9 +51,13 @@ class RestaurantBasket extends Component
         return;
     }
 
-    sleep(1); // Keep the spinner for that premium feel
+    // Step 1: If logged in, go to the streamlined Express Checkout
+    if (auth()->check()) {
+        return redirect()->route('checkout'); 
+    }
 
-    return redirect()->route('checkout');
+    // Step 2: If guest, go to the page where they can choose Social Login or Guest Flow
+    return redirect()->route('checkout.guest'); 
 }
 
     /**

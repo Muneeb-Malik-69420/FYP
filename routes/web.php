@@ -56,7 +56,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     // This creates the 'restaurants.show' route name that the Blade file is looking for
     Route::get('/restaurant/{id}', RestaurantProfile::class)
         ->name('restaurants.show');
-    Route::get('/checkout', Checkout::class)->name('checkout')->lazy();
+    Route::get('/checkout', Checkout::class)->name('checkout');
 });
 
 // Supplier routes
