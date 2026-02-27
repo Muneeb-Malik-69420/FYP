@@ -22,7 +22,7 @@
                             {{ $supplier->business_name }}
                         </h1>
                         <div class="flex flex-wrap items-center gap-6">
-                            <div class="flex items-center gap-2 bg-[#52c234] px-3 py-1 rounded-sm shadow-lg">
+                            <div class="flex items-center gap-2 bg-[#027d51] px-3 py-1 rounded-sm shadow-lg">
                                 <i class="fas fa-leaf text-[10px] text-white"></i>
                                 <span class="text-[9px] font-black uppercase tracking-widest text-white">Eco-Partner</span>
                             </div>
@@ -32,7 +32,7 @@
                                 <span class="text-white/50">(500+ Reviews)</span>
                             </div>
                             <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/90">
-                                <i class="fas fa-map-marker-alt text-[#52c234]"></i>
+                                <i class="fas fa-map-marker-alt text-[#027d51]"></i>
                                 {{ $supplier->business_location }}
                             </div>
                         </div>
@@ -48,31 +48,21 @@
     {{-- 2. Tactile Sticky Search & Category Bar --}}
     <div class="sticky top-[60px] z-40 bg-white border-b border-gray-200 h-[70px] flex items-center shadow-sm">
         <div class="max-w-7xl mx-auto px-6 flex items-center gap-8 w-full">
-            
-            {{-- Pro Search Input linked to Livewire --}}
             <div class="relative w-80 shrink-0 group">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#52c234] transition-colors text-xs"></i>
-                <input wire:model.live.debounce.300ms="search" type="text" 
-                    placeholder="FIND A DEAL..."
-                    class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg py-2.5 pl-11 pr-4 text-[11px] font-black tracking-widest text-black placeholder-gray-400 focus:ring-0 focus:border-black focus:bg-white transition-all outline-none uppercase shadow-inner"
-                >
+                <input wire:model.live.debounce.300ms="search" type="text" placeholder="FIND A DEAL..."
+                    class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg py-2.5 pl-11 pr-4 text-[11px] font-black tracking-widest text-black placeholder-gray-400 focus:ring-0 focus:border-black focus:bg-white transition-all outline-none uppercase shadow-inner">
             </div>
 
             <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
 
-            {{-- Dynamic Category Nav with Active States --}}
             <nav class="flex items-center gap-8 overflow-x-auto no-scrollbar scroll-smooth h-full">
                 @foreach ($categories as $cat)
-                    <button 
-                        wire:click="setCategory('{{ $cat }}')"
-                        {{-- Use a standard HTML anchor behavior for the scroll jump --}}
+                    <button wire:click="setCategory('{{ $cat }}')"
                         onclick="window.location.hash='#{{ Str::slug($cat) }}'"
-                        class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] transition-colors py-2 {{ $activeCategory === $cat ? 'text-[#52c234]' : 'text-[#1a1a1a] hover:text-[#52c234]' }}">
-                        
+                        class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] transition-colors py-2 {{ $activeCategory === $cat ? 'text-[#027d51]' : 'text-[#1a1a1a] hover:text-[#027d51]' }}">
                         {{ $cat }}
-                        
-                        {{-- Active Underline synced with $activeCategory --}}
-                        <span class="absolute bottom-0 left-0 h-0.5 bg-[#52c234] transition-all {{ $activeCategory === $cat ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
+                        <span class="absolute bottom-0 left-0 h-0.5 bg-[#087a52] transition-all {{ $activeCategory === $cat ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
                     </button>
                 @endforeach
             </nav>
@@ -83,7 +73,6 @@
     <div class="bg-[#ececec]">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex flex-col lg:flex-row items-start">
-
                 {{-- LEFT COLUMN: Deals --}}
                 <div class="w-full lg:flex-grow lg:pr-12 pt-8 pb-20 lg:h-[calc(100vh-130px)] lg:overflow-y-auto custom-scrollbar">
                     <div id="deals-container" class="mb-16">
@@ -93,43 +82,67 @@
 
                 {{-- RIGHT COLUMN: Fixed Basket Sidebar --}}
                 <aside class="hidden lg:block lg:w-[420px] lg:h-[calc(100vh-130px)] lg:sticky lg:top-[130px]">
-                    <div class="h-full py-8 lg:pl-12 lg:border-l lg:border-gray-300 flex flex-col">
-                        <div class="bg-white border border-gray-300 p-8 shadow-sm flex flex-col h-full rounded-sm">
-                            <div class="flex items-center justify-between mb-8 border-b border-gray-100 pb-5">
-                                <h2 class="text-[11px] font-black uppercase tracking-[0.3em] text-gray-900">Your Basket</h2>
-                                <i class="fas fa-shopping-basket text-xs text-gray-300"></i>
-                            </div>
-
-                            <div class="flex-grow overflow-y-auto no-scrollbar mb-6">
-                                <div class="py-12 text-center border border-dashed border-gray-200 mb-8 bg-[#f9f9f9]">
-                                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Basket is empty</p>
-                                </div>
-                            </div>
-
-                            <div class="mt-auto pt-5 border-t border-gray-100">
-                                <div class="flex justify-between text-lg font-black uppercase tracking-tighter text-gray-900 mt-2">
-                                    <span>Total</span>
-                                    <span>Rs. 0</span>
-                                </div>
-                                <button class="w-full bg-black text-white mt-10 py-5 text-[10px] font-black uppercase tracking-[0.3em] hover:bg-green-500 transition-all rounded-sm shadow-lg">
-                                    Checkout
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    @livewire('restaurant-basket')
                 </aside>
-
             </div>
         </div>
     </div>
 
+    {{-- 💎 4. Floating Toast UI (Alpine.js) --}}
+    <div
+        x-data="{ show: false, message: '' }"
+        x-on:show-toast.window="message = $event.detail.message; show = true; setTimeout(() => show = false, 3000)"
+        x-show="show"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform translate-y-10 scale-95"
+        x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform translate-y-0 scale-100"
+        x-transition:leave-end="opacity-0 transform translate-y-10 scale-95"
+        class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] pointer-events-none"
+        style="display: none;"
+    >
+        <div class="bg-[#111827] text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-white/10 pointer-events-auto">
+            <div class="bg-[#52c234] rounded-full p-1 w-5 h-5 flex items-center justify-center">
+                <i class="fas fa-check text-[10px] text-white"></i>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-widest" x-text="message"></span>
+        </div>
+    </div>
+
     <style>
+        @keyframes qty-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); color: #52c234; }
+    100% { transform: scale(1); }
+}
+
+.animate-qty-pulse {
+    display: inline-block;
+    animation: qty-pulse 0.3s ease-out;
+}
+        /* 💎 Basket Pop Animation */
+        @keyframes basket-pop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.4); }
+            60% { transform: scale(0.9); }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-pop {
+            animation: basket-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Custom Scrollbar Styles */
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #ececec; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #52c234; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
         html { scroll-behavior: smooth; }
     </style>
 </div>

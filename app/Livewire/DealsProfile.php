@@ -46,6 +46,40 @@ class DealsProfile extends Component
     }
 
     /**
+     * Adds a food item to the session-based basket.
+     * Dispatches events to refresh the basket and show a toast notification.
+     */
+    public function addToBasket($itemId)
+    {
+        // 1. Fetch the item details from the database
+        $item = FoodItem::findOrFail($itemId);
+
+        // 2. Retrieve existing cart data from the session
+        $cart = session()->get('cart', []);
+
+        // 3. Update quantity if item exists, otherwise add new entry
+        if (isset($cart[$itemId])) {
+            $cart[$itemId]['quantity']++;
+        } else {
+            $cart[$itemId] = [
+                "name" => $item->item_name,
+                "quantity" => 1,
+                "price" => $item->discounted_price,
+                "image" => $item->image_path
+            ];
+        }
+
+        // 4. Save the updated cart back to the session
+        session()->put('cart', $cart);
+
+        // 5. Signal the RestaurantBasket component to refresh its view
+        $this->dispatch('cartUpdated');
+
+        // 6. Dispatch a browser event to trigger the floating toast notification
+        $this->dispatch('show-toast', message: "Added " . $item->item_name . " to basket!");
+    }
+
+    /**
      * Renders the menu grid based on the supplier, active category, and search term.
      */
     public function render()

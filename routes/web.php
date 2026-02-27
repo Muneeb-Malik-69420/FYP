@@ -9,6 +9,7 @@ use App\Http\Controllers\SupplierDashboardController;
 use App\Livewire\RestaurantProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Checkout;
 
 Route::get('/admin/approve-me', function () {
     $user = Auth::user();
@@ -55,6 +56,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     // This creates the 'restaurants.show' route name that the Blade file is looking for
     Route::get('/restaurant/{id}', RestaurantProfile::class)
         ->name('restaurants.show');
+    Route::get('/checkout', Checkout::class)->name('checkout')->lazy();
 });
 
 // Supplier routes

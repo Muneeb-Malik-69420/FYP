@@ -8,8 +8,8 @@
         </h2>
     </div>
 
-    {{-- 2. Loading Skeleton --}}
-    <div wire:loading class="w-full">
+    {{-- 2. Loading Skeleton: Targeted to ONLY show during navigation or search filtering --}}
+    <div wire:loading wire:target="updateFilter, searchTerm, activeCategory" class="w-full">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 animate-pulse">
             @for ($i = 0; $i < 4; $i++)
                 <div class="bg-gray-100 rounded-2xl h-[180px] w-full border border-gray-200"></div>
@@ -17,8 +17,8 @@
         </div>
     </div>
 
-    {{-- 3. The Main Grid --}}
-    <div wire:loading.remove class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+    {{-- 3. The Main Grid: Targeted to stay visible when adding to basket --}}
+    <div wire:loading.remove wire:target="updateFilter, searchTerm, activeCategory" class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
         @forelse($foodItems as $item)
             @php
                 $percentage = ($item->original_price > 0 && $item->discounted_price < $item->original_price) 
@@ -30,19 +30,18 @@
                     : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop';
             @endphp
 
-            {{-- 💎 CARD: Added '-translate-y' and 'shadow' transitions --}}
             <div class="group bg-white rounded-2xl border border-gray-100 p-4 flex justify-between cursor-pointer h-[180px] 
                         transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.98]">
                 
                 <div class="flex flex-col justify-between py-1 pr-2">
                     <div>
                         @if($percentage > 0)
-                            <span class="bg-[#52c234]/10 text-[#52c234] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded mb-2 inline-block border border-[#52c234]/20">
+                            <span class="bg-[#52c234]/10 text-[#437836] text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded mb-2 inline-block border border-[#52c234]/20">
                                 {{ $percentage }}% OFF
                             </span>
                         @endif
 
-                        <h3 class="text-[#111827] font-[700] text-[16px] leading-tight mb-1 group-hover:text-[#52c234] transition-colors">
+                        <h3 class="text-[#111827] font-[700] text-[16px] leading-tight mb-1">
                             {{ $item->item_name }}
                         </h3>
                         
@@ -52,7 +51,7 @@
                     </div>
 
                     <div class="space-y-1">
-                        <p class="text-[11px] font-[600] uppercase tracking-tight {{ $item->quantity < 5 ? 'text-red-600' : 'text-[#2E7D32]' }}">
+                        <p class="text-[11px] font-[600] uppercase tracking-tight {{ $item->quantity < 5 ? 'text-red-600' : 'text-[#437836]' }}">
                             <i class="fas fa-layer-group mr-1"></i> {{ $item->quantity }} left
                         </p>
                         
@@ -70,15 +69,18 @@
                     </div>
                 </div>
 
-                {{-- 💎 IMAGE: Added overflow-hidden and zoom effect --}}
                 <div class="relative flex-shrink-0 w-28 h-28 self-center overflow-hidden rounded-xl bg-gray-50 border border-gray-100 shadow-sm">
                     <img src="{{ $imageSrc }}" alt="{{ $item->item_name }}"
-                         class="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110">
+                        class="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110">
                     
-                    {{-- 💎 PLUS BUTTON: Minimalist white/green --}}
-                    <button onclick="addToBasket({{ $item->id }})"
-                        class="absolute bottom-1 right-1 bg-white w-8 h-8 rounded-full shadow-lg flex items-center justify-center text-[#52c234] hover:bg-[#52c234] hover:text-white transition-all active:scale-95 z-10">
-                        <i class="fas fa-plus text-[10px]"></i>
+                    <button 
+                        wire:click="addToBasket({{ $item->id }})"
+                        wire:loading.attr="disabled"
+                        class="absolute bottom-1 right-1 bg-white w-8 h-8 rounded-full shadow-lg flex items-center justify-center text-[#437836] hover:bg-[#52c234] hover:text-white transition-all active:scale-95 z-10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        
+                        <i class="fas fa-plus text-[10px]" wire:loading.remove wire:target="addToBasket({{ $item->id }})"></i>
+                        
+                        <div wire:loading wire:target="addToBasket({{ $item->id }})" class="w-3 h-3 border-2 border-[#52c234] border-t-transparent rounded-full animate-spin"></div>
                     </button>
                 </div>
             </div>
