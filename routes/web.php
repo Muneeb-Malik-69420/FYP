@@ -6,10 +6,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RiderDashboardController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\SupplierDashboardController;
+use App\Livewire\Checkout;
+use App\Livewire\OrderSuccess;
 use App\Livewire\RestaurantProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Checkout;
 
 Route::get('/admin/approve-me', function () {
     $user = Auth::user();
@@ -57,6 +58,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/restaurant/{id}', RestaurantProfile::class)
         ->name('restaurants.show');
     Route::get('/checkout', Checkout::class)->name('checkout');
+    Route::get('/order-success', OrderSuccess::class)->name('order.success');
 });
 
 // Supplier routes
