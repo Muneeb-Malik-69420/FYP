@@ -13,7 +13,7 @@ class CustomerSearch extends Component
     public function mount()
     {
         // Default to Session value OR Jhelum if empty
-        $this->city = session('user_city', 'Jhelum');
+        $this->city = session('user_city',);
     }
 
     public function selectCity($cityName)

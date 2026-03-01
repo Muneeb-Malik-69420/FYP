@@ -34,13 +34,12 @@ Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect']);
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback']);
 
 // Public routes
-Route::view('/', 'Customer.public.Home')->name('Home');
-Route::view('/browse', 'Customer.public.Browse')->name('Browse');
-Route::view('/contact', 'Customer.public.contact')->name('Contact');
-Route::view('/blog', 'Customer.public.blog')->name('Blog');
+// Route::view('/', 'Customer.public.Home')->name('Home');
+// Route::view('/browse', 'Customer.public.Browse')->name('Browse');
+// Route::view('/contact', 'Customer.public.contact')->name('Contact');
+// Route::view('/blog', 'Customer.public.blog')->name('Blog');
 
-
-
+Route::get('/', [CustomerDashboardController::class, 'index'])->name('Home');
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
@@ -50,13 +49,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 });
 
+Route::get('/restaurant/{id}', RestaurantProfile::class)
+    ->name('restaurants.show');
 // Customer routes
 Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
     // This creates the 'restaurants.show' route name that the Blade file is looking for
-    Route::get('/restaurant/{id}', RestaurantProfile::class)
-        ->name('restaurants.show');
+
     Route::get('/checkout', Checkout::class)->name('checkout');
     Route::get('/order-success', OrderSuccess::class)->name('order.success');
 });

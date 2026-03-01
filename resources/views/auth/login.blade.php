@@ -1,7 +1,9 @@
 @extends('layout.app')
 
 @section('content')
-<div class="fixed top-[64px] left-0 w-full h-[calc(100vh-64px)] flex overflow-hidden bg-white">
+
+{{-- Updated wrapper: Removed 'fixed' and hardcoded margins for seamless sticky nav alignment --}}
+<div class="flex-1 min-h-[calc(100vh-64px)] w-full flex bg-white overflow-hidden">
     
     {{-- LEFT PANEL --}}
     <div class="hidden md:flex md:w-1/2 flex-col justify-center items-center bg-gradient-to-br from-[#0f711c] via-[#0c5f17] to-[#083d10] p-12 text-white relative">
@@ -32,7 +34,7 @@
                 </p>
                 <a href="{{ route('register') }}" 
                    class="inline-block px-10 py-3 border-2 border-white rounded-full text-xs font-black hover:bg-white hover:text-[#0f711c] transition-all duration-300 transform hover:scale-105">
-                    JOIN THE MOVEMENT
+                    Create an Account
                 </a>
             </div>
         </div>
@@ -53,13 +55,13 @@
             {{-- Social Buttons --}}
             <div class="flex gap-3 mb-6">
                 <a href="/auth/google" 
-                   class="flex-1 py-2.5 border border-gray-200 rounded-xl flex items-center justify-center gap-2 bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                   class="flex-1 py-2.5 border border-gray-200 rounded-xl flex items-center justify-center gap-2 bg-white hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
                     <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-4 h-4" alt="Google">
                     <span class="text-xs font-bold text-gray-700">Google</span>
                 </a>
 
                 <a href="/auth/facebook" 
-                   class="flex-1 py-2.5 border border-gray-200 rounded-xl flex items-center justify-center gap-2 bg-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                   class="flex-1 py-2.5 border border-gray-200 rounded-xl flex items-center justify-center gap-2 bg-white hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
                     <i class="fab fa-facebook text-blue-600 text-lg"></i>
                     <span class="text-xs font-bold text-gray-700">Facebook</span>
                 </a>
@@ -86,7 +88,7 @@
 
                         <input type="email" id="login_email" name="email" placeholder="Email Address" required value="{{ old('email') }}"
                             class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all duration-300 text-sm
-                            focus:bg-white focus:border-[#0f711c] focus:ring-2 focus:ring-[#0f711c]/20
+                            focus:bg-white focus:border-[#0f711c] focus:ring-4 focus:ring-[#0f711c]/10
                             {{ $errors->has('email') ? 'border-red-500 bg-red-50' : '' }}" />
                     </div>
                 </div>
@@ -100,9 +102,8 @@
                         </span>
 
                         <input type="password" id="login_password" name="password" placeholder="Password" required
-                            onkeyup="checkStrength(this.value)"
                             class="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all duration-300 text-sm
-                            focus:bg-white focus:border-[#0f711c] focus:ring-2 focus:ring-[#0f711c]/20
+                            focus:bg-white focus:border-[#0f711c] focus:ring-4 focus:ring-[#0f711c]/10
                             {{ $errors->has('password') ? 'border-red-500 bg-red-50' : '' }}" />
 
                         {{-- Toggle Button --}}
@@ -111,25 +112,14 @@
                             <i class="fas fa-eye text-sm" id="eye_icon"></i>
                         </button>
                     </div>
-
-                    {{-- Strength Meter --}}
-                    <div class="mt-2 px-1">
-                        <div class="flex gap-1 h-1 w-full">
-                            <div id="bar-1" class="h-full w-1/4 rounded-full bg-gray-200 transition-colors duration-500"></div>
-                            <div id="bar-2" class="h-full w-1/4 rounded-full bg-gray-200 transition-colors duration-500"></div>
-                            <div id="bar-3" class="h-full w-1/4 rounded-full bg-gray-200 transition-colors duration-500"></div>
-                            <div id="bar-4" class="h-full w-1/4 rounded-full bg-gray-200 transition-colors duration-500"></div>
-                        </div>
-                        <p id="strength-text" class="text-[10px] text-gray-400 mt-1 font-bold uppercase tracking-wider">Weak</p>
-                    </div>
                 </div>
 
                 {{-- Remember + Forgot --}}
                 <div class="flex items-center justify-between px-1">
-                    <label class="flex items-center text-xs text-gray-500 cursor-pointer">
+                    <label class="flex items-center text-xs text-gray-500 cursor-pointer group">
                         <input type="checkbox" name="remember"
                             class="w-3.5 h-3.5 rounded border-gray-300 text-[#0f711c] focus:ring-[#0f711c]/30">
-                        <span class="ml-2">Stay logged in</span>
+                        <span class="ml-2 group-hover:text-gray-700 transition-colors">Stay logged in</span>
                     </label>
 
                     <a href="{{ route('password.request') }}"
@@ -152,7 +142,6 @@
     </div>
 </div>
 
-{{-- Floating Animation --}}
 <style>
 @keyframes float {
     0%,100% { transform: translateY(0px); }
@@ -161,7 +150,6 @@
 </style>
 
 <script>
-    // Visibility Toggle
     function toggleVisibility(id, btn) {
         const input = document.getElementById(id);
         const icon = btn.querySelector('i');
@@ -171,40 +159,6 @@
         } else {
             input.type = 'password';
             icon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
-    }
-
-    // Password Strength Meter
-    function checkStrength(password) {
-        let strength = 0;
-        if (password.length > 5) strength++;
-        if (password.length > 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password) || /[^A-Za-z0-9]/.test(password)) strength++;
-
-        const bars = [
-            document.getElementById('bar-1'),
-            document.getElementById('bar-2'),
-            document.getElementById('bar-3'),
-            document.getElementById('bar-4')
-        ];
-        const text = document.getElementById('strength-text');
-
-        // Reset bars
-        bars.forEach(bar => bar.className = 'h-full w-1/4 rounded-full bg-gray-200 transition-colors duration-500');
-
-        const colors = ['bg-red-400', 'bg-orange-400', 'bg-yellow-400', 'bg-green-500'];
-        const labels = ['Weak', 'Fair', 'Good', 'Strong'];
-
-        if (password.length > 0) {
-            for (let i = 0; i < strength; i++) {
-                bars[i].classList.replace('bg-gray-200', colors[strength - 1]);
-            }
-            text.innerText = labels[strength - 1];
-            text.className = `text-[10px] mt-1 font-bold uppercase tracking-wider ${colors[strength-1].replace('bg-', 'text-')}`;
-        } else {
-            text.innerText = 'Weak';
-            text.className = 'text-[10px] text-gray-400 mt-1 font-bold uppercase tracking-wider';
         }
     }
 </script>

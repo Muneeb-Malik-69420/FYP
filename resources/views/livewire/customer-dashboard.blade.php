@@ -1,4 +1,4 @@
-<main class="bg-gray-50 min-h-screen pt-[58px]">
+<main class="bg-gray-50 min-h-screen ">
     <div class="w-full pl-4 pr-10 pb-10">
 
         {{-- Keep the filter bar outside the loading container so it doesn't flicker --}}

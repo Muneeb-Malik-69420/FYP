@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full"> {{-- Added h-full to the root --}}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,13 +36,15 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 m-0 p-0 font-sans antialiased text-gray-900">
+{{-- Added min-h-screen and flex-col to the body --}}
+<body class="bg-gray-50 m-0 p-0 font-sans antialiased text-gray-900 min-h-screen flex flex-col">
 
     <div class="sticky top-0 z-[60]">
-        @include('partials.nav')
+        @include('partials.main-nav')
     </div>
 
-    <main>
+    {{-- Added flex-1 and flex-col here --}}
+    <main class="flex-1 flex flex-col">
         @yield('content')
     </main>
 

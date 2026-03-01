@@ -39,13 +39,17 @@
 <body class="bg-gray-50 m-0 p-0 font-sans antialiased text-gray-900">
 
     <div class="sticky top-0 z-[60]">
-        @include('partials.customer.nav2')
+        @include('partials.main-nav')
     </div>
 
     <main>
-       {{ $slot ?? '' }} @yield('content')
+        @yield('content')
     </main>
 
     @yield('scripts')
 </body>
 </html>
+
+
+
+{{ $slot ?? '' }}
