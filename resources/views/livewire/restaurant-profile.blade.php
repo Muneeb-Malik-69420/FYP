@@ -1,4 +1,4 @@
-<div class="animate-fadeIn bg-[#fcfcfc] mt-[60px] overflow-hidden">
+<div class="animate-fadeIn bg-[#fcfcfc]  overflow-hidden">
     {{-- 1. Hero Section --}}
     <div class="relative h-[40vh] w-full bg-gray-900 overflow-hidden">
         <img src="{{ $supplier->cover_photo ? asset('storage/' . $supplier->cover_photo) : 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=1600' }}"
@@ -46,28 +46,31 @@
     </div>
 
     {{-- 2. Tactile Sticky Search & Category Bar --}}
-    <div class="sticky top-[60px] z-40 bg-white border-b border-gray-200 h-[70px] flex items-center shadow-sm">
-        <div class="max-w-7xl mx-auto px-6 flex items-center gap-8 w-full">
-            <div class="relative w-80 shrink-0 group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#52c234] transition-colors text-xs"></i>
-                <input wire:model.live.debounce.300ms="search" type="text" placeholder="FIND A DEAL..."
-                    class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg py-2.5 pl-11 pr-4 text-[11px] font-black tracking-widest text-black placeholder-gray-400 focus:ring-0 focus:border-black focus:bg-white transition-all outline-none uppercase shadow-inner">
-            </div>
-
-            <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
-
-            <nav class="flex items-center gap-8 overflow-x-auto no-scrollbar scroll-smooth h-full">
-                @foreach ($categories as $cat)
-                    <button wire:click="setCategory('{{ $cat }}')"
-                        onclick="window.location.hash='#{{ Str::slug($cat) }}'"
-                        class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] transition-colors py-2 {{ $activeCategory === $cat ? 'text-[#027d51]' : 'text-[#1a1a1a] hover:text-[#027d51]' }}">
-                        {{ $cat }}
-                        <span class="absolute bottom-0 left-0 h-0.5 bg-[#087a52] transition-all {{ $activeCategory === $cat ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
-                    </button>
-                @endforeach
-            </nav>
+    {{-- Removed h-[70px] and added py-2 to match the main Navbar --}}
+<div class="sticky top-[56px] z-40 bg-white border-b border-gray-200 flex items-center shadow-sm py-2 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-6 flex items-center gap-8 w-full">
+        
+        {{-- SEARCH INPUT --}}
+        <div class="relative w-80 shrink-0 group">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#52c234] transition-colors text-xs"></i>
+            <input wire:model.live.debounce.300ms="search" type="text" placeholder="FIND A DEAL..."
+                class="w-full bg-gray-50 border-2 border-gray-200 rounded-lg py-2 pl-11 pr-4 text-[10px] font-black tracking-widest text-black placeholder-gray-400 focus:ring-0 focus:border-[#52c234] focus:bg-white transition-all outline-none uppercase shadow-inner">
         </div>
+
+        <div class="h-6 w-px bg-gray-200 hidden md:block"></div>
+
+        {{-- CATEGORY NAVIGATION --}}
+        <nav class="flex items-center gap-8 overflow-x-auto no-scrollbar scroll-smooth">
+            @foreach ($categories as $cat)
+                <button wire:click="setCategory('{{ $cat }}')"
+                    class="group relative whitespace-nowrap text-[10px] font-black uppercase tracking-[0.2em] transition-colors py-1 {{ $activeCategory === $cat ? 'text-[#027d51]' : 'text-[#1a1a1a] hover:text-[#027d51]' }}">
+                    {{ $cat }}
+                    <span class="absolute -bottom-2 left-0 h-0.5 bg-[#087a52] transition-all {{ $activeCategory === $cat ? 'w-full' : 'w-0 group-hover:w-full' }}"></span>
+                </button>
+            @endforeach
+        </nav>
     </div>
+</div>
 
     {{-- 3. Main Content Split View --}}
     <div class="bg-[#ececec]">

@@ -1,182 +1,223 @@
-{{-- Parent locked to viewport, perfectly synchronized with your ~64px Navbar height --}}
-<div class="h-screen bg-[#F9FAFB] pt-[64px] flex flex-col overflow-hidden" 
-     x-data="{ selectedMethod: @entangle('paymentMethod').live }">
+<div 
+    x-data="{ 
+        pageReady: false,
+        selectedMethod: @entangle('paymentMethod').live,
+        loadingLocation: false,
+        async locateMe() {
+            if (!navigator.geolocation) return alert('Geolocation not supported');
+            this.loadingLocation = true;
+            
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                    const data = await res.json();
+                    
+                    const addr = data.address;
+                    const street = addr.road || '';
+                    const house = addr.house_number || '';
+                    const neighborhood = addr.suburb || addr.neighbourhood || '';
+                    const city = addr.city || addr.town || '';
+                    
+                    const fullAddress = `${house} ${street}, ${neighborhood}, ${city}`.replace(/^ , /, '').trim();
+                    @this.set('address', fullAddress);
+                } catch (e) {
+                    alert('Could not detect address details.');
+                } finally {
+                    this.loadingLocation = false;
+                }
+            }, () => {
+                this.loadingLocation = false;
+                alert('Location access denied.');
+            });
+        }
+    }"
+    x-init="setTimeout(() => pageReady = true, 100)"
+    class="h-screen bg-[#F9FAFB] flex flex-col overflow-hidden"
+>
 
-    {{-- Main Wrapper: Centers content and creates clean side gutters --}}
     <div class="max-w-7xl mx-auto w-full flex-grow flex flex-col overflow-hidden">
 
-        {{-- True Grid: Split 8:4 for professional balance --}}
-        <div class="flex-grow grid lg:grid-cols-12 gap-0 overflow-hidden">
+        <div class="flex-grow grid lg:grid-cols-12 overflow-hidden">
 
-            {{-- LEFT COLUMN: Independent Scrollable Form (Col-Span-8) --}}
-            <div class="lg:col-span-8 h-full overflow-y-auto px-10 py-10 no-scrollbar">
+            {{-- LEFT COLUMN --}}
+            <div 
+                x-show="pageReady"
+                x-transition:enter="transition ease-out duration-700 delay-100"
+                x-transition:enter-start="opacity-0 translate-x-6"
+                x-transition:enter-end="opacity-100 translate-x-0"
+                class="lg:col-span-8 h-full overflow-y-auto px-10 py-10 no-scrollbar"
+            >
 
-                {{-- Breadcrumb Navigation --}}
+                {{-- Header --}}
                 <div class="mb-8">
-                    <a href="/explore"
-                        class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-[#52c234] transition-colors group">
-                        <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
-                        Back to Menu
-                    </a>
+                    <h2 class="text-3xl font-semibold text-gray-900">
+                        Confirm Delivery & 
+                        <span class="text-[#52c234]">Payment</span>
+                    </h2>
                 </div>
 
-                {{-- Header Section --}}
-                <div class="mb-10">
-                    <h3 class="text-3xl font-black uppercase tracking-tighter text-gray-900 leading-none">
-                        Confirm Delivery & <span class="text-[#52c234]">Payment</span>
-                    </h3>
-                </div>
+                <div class="space-y-8 pb-24">
 
-                <div class="space-y-6 pb-24">
-                    {{-- Delivery Information Card --}}
-                    <div class="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-900 mb-8 flex items-center gap-3">
-                            <i class="fas fa-map-marker-alt text-[#52c234]"></i> Delivery Details
+                    {{-- Delivery Card --}}
+                    <div class="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
+                        <h3 class="text-sm font-semibold tracking-wide text-gray-800 mb-6 flex items-center gap-3">
+                            <i class="fas fa-map-marker-alt text-[#52c234]"></i>
+                            Delivery Details
                         </h3>
 
-                        <div class="space-y-5">
+                        <div class="space-y-6">
+
                             <div>
-                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Full Name</label>
-                                <div class="w-full mt-1 bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm font-black text-gray-800 uppercase shadow-inner">
+                                <label class="text-xs font-medium uppercase tracking-wide text-gray-500">Full Name</label>
+                                <div class="mt-2 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm font-medium text-gray-800">
                                     {{ $name }}
                                 </div>
                             </div>
 
                             <div>
-                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Street Address</label>
-                                <input type="text" wire:model.blur="address" placeholder="House/Street/Area"
-                                    class="w-full mt-1 bg-gray-50 border @error('address') border-red-500 @else border-gray-100 @enderror rounded-xl p-4 text-sm font-medium focus:ring-2 focus:ring-[#52c234] outline-none transition-all">
+                                <label class="text-xs font-medium uppercase tracking-wide text-gray-500">Street Address</label>
+                                <div class="relative mt-2">
+                                    <input type="text"
+                                           wire:model="address"
+                                           placeholder="House / Street / Area"
+                                           class="w-full bg-gray-50 border @error('address') border-red-500 @else border-gray-200 @enderror rounded-xl p-4 pr-12 text-sm focus:ring-2 focus:ring-[#52c234] outline-none">
+
+                                    <button type="button"
+                                            @click="locateMe()"
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#52c234] hover:bg-green-50">
+                                        <i class="fas fa-location-arrow"
+                                           :class="loadingLocation ? 'animate-spin text-[#52c234]' : ''"></i>
+                                    </button>
+                                </div>
                                 @error('address')
-                                    <span class="text-[10px] text-red-500 font-bold mt-1 block ml-1 italic">{{ $message }}</span>
+                                    <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <div>
-                                <label class="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Phone Number</label>
-                                <input type="text" wire:model.blur="phone" placeholder="03XXXXXXXXX"
-                                    class="w-full mt-1 bg-gray-50 border @error('phone') border-red-500 @else border-gray-100 @enderror rounded-xl p-4 text-sm font-medium focus:ring-2 focus:ring-[#52c234] outline-none transition-all">
+                                <label class="text-xs font-medium uppercase tracking-wide text-gray-500">Phone Number</label>
+                                <input type="text"
+                                       wire:model.blur="phone"
+                                       placeholder="03XXXXXXXXX"
+                                       class="w-full mt-2 bg-gray-50 border @error('phone') border-red-500 @else border-gray-200 @enderror rounded-xl p-4 text-sm focus:ring-2 focus:ring-[#52c234] outline-none">
                                 @error('phone')
-                                    <span class="text-[10px] text-red-500 font-bold mt-1 block ml-1 italic">{{ $message }}</span>
+                                    <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
                                 @enderror
                             </div>
+
                         </div>
                     </div>
 
-                    {{-- Payment Section Card --}}
-                    <div class="bg-white border border-gray-100 rounded-[2rem] p-8 shadow-sm">
-                        <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-900 mb-8 flex items-center gap-3">
-                            <i class="fas fa-credit-card text-[#52c234]"></i> Payment Method
+                    {{-- Payment Card --}}
+                    <div class="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm">
+                        <h3 class="text-sm font-semibold tracking-wide text-gray-800 mb-6 flex items-center gap-3">
+                            <i class="fas fa-credit-card text-[#52c234]"></i>
+                            Payment Method
                         </h3>
 
-                        <div class="space-y-3">
-                            {{-- 💎 Hidden bridge for absolute data sync --}}
-                            <input type="hidden" name="payment_method" x-model="selectedMethod">
+                        <div class="space-y-4">
+                            @foreach ([
+                                'cod' => 'Cash on Delivery',
+                                'card' => 'Credit or Debit Card',
+                                'jazzcash' => 'JazzCash',
+                                'easypaisa' => 'EasyPaisa'
+                            ] as $value => $label)
 
-                            {{-- Cash on Delivery --}}
-                            <div @click="selectedMethod = 'cod'"
-                                class="flex items-center justify-between p-5 border-2 rounded-2xl cursor-pointer transition-all bg-white"
-                                :class="selectedMethod === 'cod' ? 'border-[#52c234] bg-[#52c234]/5 ring-4 ring-[#52c234]/5' : 'border-gray-50 hover:border-gray-200'">
-                                <div class="flex items-center gap-4">
-                                    <img width="40px" src="https://images.deliveryhero.io/image/foodpanda/payment_icons/payment_method/ic-payments-payment_on_delivery-xs.png" alt="COD">
-                                    <span class="text-[11px] font-black uppercase tracking-widest text-gray-900">Cash on Delivery</span>
-                                </div>
-                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                    :class="selectedMethod === 'cod' ? 'border-[#52c234] bg-[#52c234]' : 'border-gray-300'">
-                                    <i x-show="selectedMethod === 'cod'" class="fas fa-check text-[10px] text-white"></i>
+                            <div @click="selectedMethod = '{{ $value }}'"
+                                 class="flex items-center justify-between p-4 border-2 rounded-2xl cursor-pointer transition-all"
+                                 :class="selectedMethod === '{{ $value }}'
+                                    ? 'border-[#52c234] bg-green-50'
+                                    : 'border-gray-200 hover:border-gray-300'">
+
+                                <span class="text-sm font-medium text-gray-800">
+                                    {{ $label }}
+                                </span>
+
+                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                     :class="selectedMethod === '{{ $value }}'
+                                        ? 'border-[#52c234] bg-[#52c234]'
+                                        : 'border-gray-300'">
+                                    <i x-show="selectedMethod === '{{ $value }}'"
+                                       class="fas fa-check text-xs text-white"></i>
                                 </div>
                             </div>
 
-                            {{-- Card (Safepay) --}}
-                            <div @click="selectedMethod = 'card'"
-                                class="flex items-center justify-between p-5 border-2 rounded-2xl cursor-pointer transition-all bg-white"
-                                :class="selectedMethod === 'card' ? 'border-[#52c234] bg-[#52c234]/5 ring-4 ring-[#52c234]/5' : 'border-gray-50 hover:border-gray-200'">
-                                <div class="flex items-center gap-4">
-                                    <img width="40px" src="https://images.deliveryhero.io/image/foodpanda/payment_icons/payment_method/ic-payments-generic_creditcard-xs.png" alt="Card">
-                                    <span class="text-[11px] font-black uppercase tracking-widest text-gray-900">Credit or Debit Card</span>
-                                </div>
-                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                    :class="selectedMethod === 'card' ? 'border-[#52c234] bg-[#52c234]' : 'border-gray-300'">
-                                    <i x-show="selectedMethod === 'card'" class="fas fa-check text-[10px] text-white"></i>
-                                </div>
-                            </div>
-
-                            {{-- JazzCash (Safepay) --}}
-                            <div @click="selectedMethod = 'jazzcash'"
-                                class="flex items-center justify-between p-5 border-2 rounded-2xl cursor-pointer transition-all bg-white"
-                                :class="selectedMethod === 'jazzcash' ? 'border-[#52c234] bg-[#52c234]/5 ring-4 ring-[#52c234]/5' : 'border-gray-50 hover:border-gray-200'">
-                                <div class="flex items-center gap-4">
-                                    <img width="40px" src="https://images.deliveryhero.io/image/foodpanda/payment_icons/payment_method/ic-payments-jazzcash_wallet-xs.png" alt="JazzCash">
-                                    <span class="text-[11px] font-black uppercase tracking-widest text-gray-900">JazzCash</span>
-                                </div>
-                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                    :class="selectedMethod === 'jazzcash' ? 'border-[#52c234] bg-[#52c234]' : 'border-gray-300'">
-                                    <i x-show="selectedMethod === 'jazzcash'" class="fas fa-check text-[10px] text-white"></i>
-                                </div>
-                            </div>
-
-                            {{-- EasyPaisa (Safepay) --}}
-                            <div @click="selectedMethod = 'easypaisa'"
-                                class="flex items-center justify-between p-5 border-2 rounded-2xl cursor-pointer transition-all bg-white"
-                                :class="selectedMethod === 'easypaisa' ? 'border-[#52c234] bg-[#52c234]/5 ring-4 ring-[#52c234]/5' : 'border-gray-50 hover:border-gray-200'">
-                                <div class="flex items-center gap-4">
-                                    <img width="40px" src="https://images.deliveryhero.io/image/foodpanda/payment_icons/payment_method/ic-payments-antfinancial_easypaisa-xs.png" alt="EasyPaisa">
-                                    <span class="text-[11px] font-black uppercase tracking-widest text-gray-900">EasyPaisa</span>
-                                </div>
-                                <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                    :class="selectedMethod === 'easypaisa' ? 'border-[#52c234] bg-[#52c234]' : 'border-gray-300'">
-                                    <i x-show="selectedMethod === 'easypaisa'" class="fas fa-check text-[10px] text-white"></i>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
+
                 </div>
             </div>
 
-            {{-- RIGHT COLUMN: Fixed Pillar Summary (Col-Span-4) --}}
-            <div class="lg:col-span-4 h-full bg-white border-l border-gray-100 p-6 flex flex-col">
-                <div class="bg-gray-900 rounded-[2.5rem] p-8 h-full flex flex-col shadow-2xl">
-                    <div class="flex justify-between items-center mb-10">
-                        <h3 class="text-[9px] font-black uppercase tracking-[0.4em] text-gray-500">Order Summary</h3>
-                        <div class="w-10 h-[2px] bg-[#52c234] rounded-full"></div>
-                    </div>
+            {{-- RIGHT SUMMARY (Eco Light Version) --}}
+            <div 
+                x-show="pageReady"
+                class="lg:col-span-4 h-full bg-[#F0FDF4] border-l border-green-100 p-8 flex flex-col"
+            >
 
-                    <div class="flex-grow space-y-6 overflow-y-auto pr-2 no-scrollbar">
+                <div class="bg-white rounded-3xl p-8 flex flex-col shadow-md border border-green-100 h-full">
+
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-green-600 mb-6">
+                        Order Summary
+                    </h3>
+
+                    <div class="space-y-4 flex-grow">
+
                         @foreach ($cart as $item)
-                            <div class="flex justify-between items-center group transition-transform hover:translate-x-1">
-                                <div class="flex items-center gap-4">
-                                    <span class="w-8 h-8 flex items-center justify-center bg-white/10 rounded-xl text-[10px] font-black text-white italic border border-white/5">{{ $item['quantity'] }}x</span>
-                                    <span class="font-black uppercase text-[11px] tracking-widest text-gray-200">{{ $item['name'] }}</span>
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-7 h-7 flex items-center justify-center bg-green-100 rounded-lg text-xs font-semibold text-green-700">
+                                        {{ $item['quantity'] }}x
+                                    </span>
+                                    <span class="text-sm font-medium text-gray-700">
+                                        {{ $item['name'] }}
+                                    </span>
                                 </div>
-                                <span class="font-black text-white text-sm italic">Rs. {{ number_format($item['price'] * $item['quantity']) }}</span>
+                                <span class="text-sm text-gray-800 font-semibold">
+                                    Rs. {{ number_format($item['price'] * $item['quantity']) }}
+                                </span>
                             </div>
                         @endforeach
+
                     </div>
 
-                    <div class="mt-10 pt-10 border-t border-white/10">
-                        <div class="flex justify-between text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-6">
+                    <div class="mt-8 pt-6 border-t border-green-100">
+
+                        <div class="flex justify-between text-sm text-gray-500 mb-3">
                             <span>Subtotal</span>
-                            <span class="text-gray-200">Rs. {{ number_format($total) }}</span>
-                        </div>
-                        <div class="flex justify-between items-end mb-10">
-                            <span class="text-[12px] font-black uppercase tracking-widest text-white italic">Total Bill</span>
-                            <span class="text-5xl font-black text-[#52c234] tracking-tighter italic leading-none drop-shadow-xl">Rs. {{ number_format($total) }}</span>
+                            <span>Rs. {{ number_format($total) }}</span>
                         </div>
 
-                        {{-- Final Bound Action Button --}}
-                        <button wire:click="placeOrder" wire:loading.attr="disabled"
-                            class="w-full bg-[#52c234] hover:bg-white hover:text-black text-white py-6 rounded-2xl font-black uppercase text-[11px] tracking-[0.4em] transition-all transform active:scale-95 shadow-xl shadow-[#52c234]/20 flex justify-center items-center gap-3">
-                            <span wire:loading.remove wire:target="placeOrder">Place Order Now</span>
+                        <div class="flex justify-between items-end mb-6">
+                            <span class=" tracking-wide text-gray-800 ">
+                                Total Bill
+                            </span>
+                            <span class="text-3xl font-bold text-[#52c234]">
+                                Rs. {{ number_format($total) }}
+                            </span>
+                        </div>
+
+                        <button wire:click="placeOrder"
+                                wire:loading.attr="disabled"
+                                class="w-full bg-[#52c234] hover:bg-[#3fa71c] text-white py-4 rounded-2xl font-semibold uppercase tracking-wider text-sm transition-all active:scale-95 shadow-md shadow-green-200 flex justify-center items-center gap-3">
+
+                            <span wire:loading.remove wire:target="placeOrder">
+                                Place Order
+                            </span>
+
                             <span wire:loading wire:target="placeOrder" class="flex items-center gap-2">
-                                <i class="fas fa-spinner animate-spin text-lg"></i>
-                                <span>Processing</span>
+                                <i class="fas fa-spinner animate-spin"></i>
+                                Processing
                             </span>
                         </button>
+
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
+
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
