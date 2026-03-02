@@ -10,6 +10,7 @@ use App\Http\Controllers\SupplierDashboardController;
 use App\Livewire\CustomerDashboard;
 use App\Livewire\RestaurantProfile;
 use App\Livewire\Checkout;
+use App\Livewire\GuestCheckout;
 use App\Livewire\OrderSuccess;
 
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +45,8 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 
 Route::get('/', CustomerDashboard::class)->name('Home');
 // Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
+ 
+    Route::get('/checkout/guest', GuestCheckout::class)->name('checkout.guest');
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');

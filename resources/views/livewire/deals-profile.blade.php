@@ -30,7 +30,8 @@
                     : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop';
             @endphp
 
-            <div class="group bg-white rounded-2xl border border-gray-100 p-4 flex justify-between cursor-pointer h-[180px] 
+            {{-- ADDED WIRE:KEY BELOW --}}
+            <div wire:key="deal-{{ $item->id }}" class="group bg-white rounded-2xl border border-gray-100 p-4 flex justify-between cursor-pointer h-[180px] 
                         transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1.5 active:scale-[0.98]">
                 
                 <div class="flex flex-col justify-between py-1 pr-2">
