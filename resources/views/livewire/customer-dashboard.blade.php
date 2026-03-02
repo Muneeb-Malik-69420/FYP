@@ -30,7 +30,7 @@
             {{-- wire:loading.remove hides this entirely while the skeleton grid above shows --}}
             <div wire:loading.remove class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 @forelse($suppliers as $supplier)
-                    <a href="{{ route('restaurants.show', $supplier->id) }}"
+                    <a wire:navigate href="{{ route('restaurants.show', $supplier->id) }}"
                         class="group bg-white rounded-none overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col h-full">
 
                         <div class="relative h-44 w-full overflow-hidden bg-gray-100">

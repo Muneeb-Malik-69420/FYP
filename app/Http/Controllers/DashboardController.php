@@ -15,7 +15,7 @@ class DashboardController extends Controller
             $user->hasRole('admin')    => 'admin.dashboard',
             $user->hasRole('supplier') => 'supplier.dashboard',
             $user->hasRole('rider')    => 'rider.dashboard',
-            default                     => 'customer.dashboard',
+            default                     => 'Home',
         };
 
         return redirect()->route($route);

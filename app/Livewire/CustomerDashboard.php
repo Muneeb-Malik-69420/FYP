@@ -61,7 +61,7 @@ class CustomerDashboard extends Component
 
     return view('livewire.customer-dashboard', [
         'suppliers' => $suppliers,
-    ]);
+    ])->layout('layout.customer');
 }
     
 }

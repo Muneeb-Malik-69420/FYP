@@ -53,11 +53,11 @@ class RestaurantBasket extends Component
 
     // Step 1: If logged in, go to the streamlined Express Checkout
     if (auth()->check()) {
-        return redirect()->route('checkout'); 
+        return $this->redirect(route('checkout'),navigate: true); 
     }
 
     // Step 2: If guest, go to the page where they can choose Social Login or Guest Flow
-    return redirect()->route('checkout.guest'); 
+    return $this->redirect(route('checkout.guest'),navigate: true); 
 }
 
     /**

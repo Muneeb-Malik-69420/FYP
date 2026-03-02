@@ -6,9 +6,12 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RiderDashboardController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\SupplierDashboardController;
+
+use App\Livewire\CustomerDashboard;
+use App\Livewire\RestaurantProfile;
 use App\Livewire\Checkout;
 use App\Livewire\OrderSuccess;
-use App\Livewire\RestaurantProfile;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -39,7 +42,9 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 // Route::view('/contact', 'Customer.public.contact')->name('Contact');
 // Route::view('/blog', 'Customer.public.blog')->name('Blog');
 
-Route::get('/', [CustomerDashboardController::class, 'index'])->name('Home');
+Route::get('/', CustomerDashboard::class)->name('Home');
+// Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
+
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
@@ -53,7 +58,6 @@ Route::get('/restaurant/{id}', RestaurantProfile::class)
     ->name('restaurants.show');
 // Customer routes
 Route::middleware(['auth', 'role:customer'])->group(function () {
-    Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
 
     // This creates the 'restaurants.show' route name that the Blade file is looking for
 
