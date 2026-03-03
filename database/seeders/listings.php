@@ -13,16 +13,15 @@ class listings extends Seeder
     /**
      * Run the database seeds.
      */
-   
-        public function run(): void
+    public function run(): void
     {
         $faker = Faker::create();
 
-        // Loop through the supplier IDs from 7 to 25
-        foreach (range(7, 25) as $supplierId) {
+        // Updated loop: Suppliers 1 through 12
+        foreach (range(1, 12) as $supplierId) {
             
-            // Create 3 food items for each supplier
-            foreach (range(1, 3) as $index) {
+            // Updated loop: 10 items for each supplier
+            foreach (range(1, 10) as $index) {
                 $originalPrice = $faker->randomFloat(2, 10, 100);
                 
                 DB::table('food_items')->insert([
@@ -41,5 +40,4 @@ class listings extends Seeder
             }
         }
     }
-    }
-
+}
