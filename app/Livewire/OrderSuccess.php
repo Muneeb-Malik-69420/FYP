@@ -14,12 +14,20 @@ class OrderSuccess extends Component
     {
         $this->order = Order::with('items')->findOrFail($id);
 
-        // Resolve name now and store as a plain string —
-        // Livewire drops loaded relationships during serialization
-        // so we can't rely on $order->user->name in the blade
-        $this->customerName = $this->order->user?->name
-            ?? $this->order->guest_name
-            ?? '—';
+        if (auth()->check()) {
+            $this->customerName = auth()->user()->name
+                ?? auth()->user()->username
+                ?? '—';
+        } else {
+            $this->customerName = $this->order->guest_name ?? '—';
+        }
+
+        \Log::info('OrderSuccess debug', [
+            'auth_id'       => auth()->id(),
+            'auth_name'     => auth()->user()?->name,
+            'auth_username' => auth()->user()?->username,
+            'customerName'  => $this->customerName,
+        ]);
 
         // Only confirm genuinely pending orders — prevents re-confirming on refresh
         if ($this->order->status === 'pending') {
@@ -35,7 +43,7 @@ class OrderSuccess extends Component
 
     public function goHome(): mixed
     {
-        return $this->redirect(route('home'), navigate: true);
+        return $this->redirect(route('Home'), navigate: true);
     }
 
     public function render()
