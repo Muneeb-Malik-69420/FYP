@@ -4,4 +4,4 @@ import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.e
 
 window.Alpine = Alpine;
 
-Alpine.start();
+// Alpine.start();
