@@ -1,18 +1,17 @@
 <nav id="navbar"
     x-data="{ mobileOpen: false }"
-    class="sticky top-0 left-0 w-full z-[100] bg-white/90 backdrop-blur-xl text-gray-800 shadow-sm px-8 flex items-center justify-between py-2 transition-all duration-300">
+    class="sticky top-0 left-0 w-full z-[100] bg-white border-b border-gray-100 px-8 flex items-center justify-between py-2 transition-all duration-300">
 
     {{-- LEFT LOGO --}}
     <a href="{{ route('Home') }}"
-       class="flex items-center gap-3 shrink-0 group">
+       class="flex items-center gap-2.5 shrink-0 group">
 
-        <div class="w-9 h-9 bg-gradient-to-br from-[#52c234] to-[#0f711c]
-                    rounded-full flex items-center justify-center text-white shadow-md
-                    transition-transform duration-300 group-hover:rotate-12 group-hover:scale-105">
-            <i class="fas fa-leaf text-base"></i>
+        <div class="w-8 h-8 bg-black rounded-full flex items-center justify-center
+                    transition-transform duration-300 group-hover:scale-105">
+            <i class="fas fa-leaf text-[#52c234] text-sm"></i>
         </div>
 
-        <span class="font-extrabold text-xl tracking-tight">
+        <span class="font-black text-xl tracking-tight text-gray-900">
             Eco<span class="text-[#52c234]">Bite</span>
         </span>
     </a>
@@ -25,38 +24,32 @@
     </div>
 
     {{-- RIGHT SIDE --}}
-    <div class="flex items-center gap-6">
+    <div class="flex items-center gap-1">
 
         {{-- LANGUAGE --}}
-        <div class="hidden md:block relative group">
-            <button class="flex items-center gap-2 text-xs font-bold uppercase hover:text-[#52c234] transition">
-                <i class="fas fa-globe"></i> EN
+        <div class="hidden md:block relative group mr-3">
+            <button class="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition px-2 py-1.5">
+                <i class="fas fa-globe text-xs"></i> EN
             </button>
 
-            <div class="absolute right-0 mt-3 w-32 bg-white/95 backdrop-blur-xl
-                        rounded-xl shadow-xl border border-gray-100
+            <div class="absolute right-0 mt-2 w-32 bg-white rounded-xl shadow-xl border border-gray-100
                         opacity-0 invisible group-hover:visible group-hover:opacity-100
-                        transition-all duration-200">
-
-                <a href="#" class="block px-4 py-2 text-xs font-semibold hover:bg-green-50 rounded-t-xl">
-                    English
-                </a>
-                <a href="#" class="block px-4 py-2 text-xs text-gray-500 hover:bg-gray-50 rounded-b-xl">
-                    Urdu
-                </a>
+                        transition-all duration-200 z-50">
+                <a href="#" class="block px-4 py-2.5 text-xs font-bold text-gray-900 hover:bg-gray-50 rounded-t-xl">English</a>
+                <a href="#" class="block px-4 py-2.5 text-xs font-medium text-gray-400 hover:bg-gray-50 rounded-b-xl">Urdu</a>
             </div>
         </div>
 
         @auth
 
         @php
-            $iconClass = "relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition";
+            $iconClass = "relative w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition text-sm";
         @endphp
 
         {{-- NOTIFICATIONS --}}
         <a href="#" class="{{ $iconClass }}">
             <i class="far fa-bell"></i>
-            <span class="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
+            <span class="absolute top-1.5 right-1.5 h-1.5 w-1.5 bg-red-500 rounded-full"></span>
         </a>
 
         {{-- FAVORITES --}}
@@ -67,56 +60,63 @@
         {{-- CART --}}
         <a href="#" class="{{ $iconClass }}">
             <i class="fas fa-shopping-cart"></i>
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
-                {{ auth()->user()->cart_count ?? 0 }}
-            </span>
+            @if((auth()->user()->cart_count ?? 0) > 0)
+                <span class="absolute -top-0.5 -right-0.5 bg-black text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center">
+                    {{ auth()->user()->cart_count }}
+                </span>
+            @endif
         </a>
 
-        {{-- PROFILE --}}
-        <div class="relative"
+        {{-- PROFILE DROPDOWN --}}
+        <div class="relative ml-2"
              x-data="{ open: false }"
              @click.away="open=false">
 
             <button @click="open=!open"
-                class="flex items-center gap-2 group">
+                    class="flex items-center gap-2 group pl-1">
 
-                <div class="w-9 h-9 rounded-full overflow-hidden border-2 border-transparent group-hover:border-[#52c234] transition">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=0f711c&color=fff"
+                <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-transparent group-hover:border-black transition duration-200">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=111111&color=fff"
                          class="w-full h-full object-cover">
                 </div>
 
-                <i class="fas fa-chevron-down text-[10px] text-gray-400 transition"
+                <i class="fas fa-chevron-down text-[9px] text-gray-400 transition-transform duration-200"
                    :class="open ? 'rotate-180' : ''"></i>
             </button>
 
             <div x-show="open"
-                 x-transition
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 scale-95 translate-y-1"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
                  x-cloak
-                 class="absolute right-0 mt-4 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3">
+                 class="absolute right-0 mt-3 w-60 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
 
-                <div class="px-5 pb-3 border-b border-gray-50">
-                    <p class="text-[10px] uppercase font-black tracking-widest text-gray-400">
-                        Logged in as
-                    </p>
-                    <p class="text-sm font-bold mt-1 truncate">
-                        {{ auth()->user()->name }}
-                    </p>
+                {{-- User info --}}
+                <div class="px-5 py-3 border-b border-gray-50">
+                    <p class="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">Logged in as</p>
+                    <p class="text-sm font-bold text-gray-900 mt-0.5 truncate">{{ auth()->user()->name }}</p>
                 </div>
 
-                <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm hover:bg-green-50 font-semibold">
-                    <i class="far fa-user text-[#52c234] w-5"></i> Profile
+                <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
+                    <i class="far fa-user text-gray-400 w-4 text-center"></i>
+                    Profile
                 </a>
 
-                <a href="#" class="flex items-center gap-3 px-5 py-3 text-sm hover:bg-green-50 font-semibold">
-                    <i class="fas fa-receipt text-[#52c234] w-5"></i> My Orders
+                <a href="#" class="flex items-center gap-3 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition">
+                    <i class="fas fa-receipt text-gray-400 w-4 text-center"></i>
+                    My Orders
                 </a>
 
-                <div class="border-t border-gray-50 my-2"></div>
+                <div class="border-t border-gray-100 my-1"></div>
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button class="w-full text-left flex items-center gap-3 px-5 py-3 text-sm font-bold text-red-500 hover:bg-red-50">
-                        <i class="fas fa-sign-out-alt w-5"></i> Logout
+                    <button class="w-full text-left flex items-center gap-3 px-5 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition">
+                        <i class="fas fa-sign-out-alt w-4 text-center"></i>
+                        Logout
                     </button>
                 </form>
             </div>
@@ -124,45 +124,51 @@
 
         @else
 
-        {{-- PUBLIC VIEW --}}
-        <a href="#" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+        {{-- GUEST ICONS --}}
+        <a href="#" class="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition text-sm">
             <i class="far fa-heart"></i>
         </a>
 
-        <a href="#" class="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
+        <a href="#" class="relative w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition text-sm">
             <i class="fas fa-shopping-cart"></i>
         </a>
 
-       <div class="hidden md:flex items-center gap-2">
-    <a href="{{ route('register') }}"
-       class="text-xs font-bold px-4 py-1.5 rounded-lg transition-colors duration-300
-       {{ request()->routeIs('register') ? 'bg-green-200 text-green-900' : 'hover:bg-gray-100 hover:text-gray-800' }}">
-        Signup
-    </a>
-    <a href="{{ route('login') }}"
-       class="text-xs font-bold px-4 py-1.5 rounded-lg transition-colors duration-300
-       {{ request()->routeIs('login') ? 'bg-green-200 text-green-900' : 'hover:bg-gray-100 hover:text-gray-800' }}">
-        Login
-    </a>
-</div>
+        <div class="hidden md:flex items-center gap-1 ml-2">
+            <a href="{{ route('register') }}"
+               class="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all duration-200
+               {{ request()->routeIs('register') ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100' }}">
+                Sign Up
+            </a>
+            <a href="{{ route('login') }}"
+               class="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg transition-all duration-200
+               {{ request()->routeIs('login') ? 'bg-black text-white' : 'bg-black text-white hover:bg-[#52c234]' }}">
+                Log In
+            </a>
+        </div>
 
         @endauth
 
         {{-- MOBILE TOGGLE --}}
         <button @click="mobileOpen=true"
-                class="lg:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition">
-            <i class="fas fa-bars"></i>
+                class="lg:hidden w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition ml-1">
+            <i class="fas fa-bars text-sm"></i>
         </button>
 
     </div>
 
-    {{-- MOBILE SLIDE PANEL --}}
+    {{-- MOBILE BACKDROP --}}
     <div x-show="mobileOpen"
-         x-transition
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
          x-cloak
          class="fixed inset-0 bg-black/40 z-40"
          @click="mobileOpen=false"></div>
 
+    {{-- MOBILE SLIDE PANEL --}}
     <div x-show="mobileOpen"
          x-transition:enter="transition ease-out duration-300"
          x-transition:enter-start="translate-x-full"
@@ -170,28 +176,41 @@
          x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="translate-x-0"
          x-transition:leave-end="translate-x-full"
-         class="fixed right-0 top-0 h-full w-72 bg-white shadow-2xl z-50 p-6">
+         x-cloak
+         class="fixed right-0 top-0 h-full w-72 bg-white shadow-2xl z-50 flex flex-col">
 
-        <button @click="mobileOpen=false" class="mb-6 text-gray-400 hover:text-gray-700">
-            <i class="fas fa-times text-xl"></i>
-        </button>
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100">
+            <span class="font-black text-lg tracking-tight">Eco<span class="text-[#52c234]">Bite</span></span>
+            <button @click="mobileOpen=false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition text-gray-400">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
 
-        <div class="space-y-4">
-            <a href="#" class="block font-semibold">Home</a>
-            <a href="#" class="block font-semibold">Shop</a>
-            <a href="#" class="block font-semibold">Orders</a>
+        <div class="flex-1 px-6 py-6 space-y-1">
+            <a href="{{ route('Home') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition">
+                <i class="fas fa-home text-gray-400 w-4 text-center"></i> Home
+            </a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 transition">
+                <i class="fas fa-receipt text-gray-400 w-4 text-center"></i> My Orders
+            </a>
+            @auth
+                <div class="border-t border-gray-100 my-3"></div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-red-500 hover:bg-red-50 transition">
+                        <i class="fas fa-sign-out-alt w-4 text-center"></i> Logout
+                    </button>
+                </form>
+            @else
+                <div class="border-t border-gray-100 my-3"></div>
+                <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-3 bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#52c234] transition">
+                    Log In
+                </a>
+                <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-3 border border-gray-200 text-gray-700 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-50 transition mt-2">
+                    Sign Up
+                </a>
+            @endauth
         </div>
     </div>
 
 </nav>
-
-<script>
-// window.addEventListener('scroll', function() {
-//     const nav = document.getElementById('navbar');
-//     if (window.scrollY > 40) {
-//         nav.classList.add('shadow-md','py-1');
-//     } else {
-//         nav.classList.remove('shadow-md','py-1');
-//     }
-// });
-</script>

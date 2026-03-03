@@ -77,15 +77,15 @@
                     <style>
                         nav[aria-label="Pagination Navigation"] [aria-current="page"] span,
                         nav[role="navigation"] [aria-current="page"] span {
-                            background-color: #16a34a !important;
-                            border-color: #16a34a !important;
+                            background-color: #000000 !important;
+                            border-color: #000000 !important;
                             color: #ffffff !important;
                         }
                         nav[aria-label="Pagination Navigation"] span:not([aria-current]) > span:hover,
                         nav[role="navigation"] a:hover span,
                         nav[role="navigation"] button:hover {
-                            border-color: #16a34a !important;
-                            color: #16a34a !important;
+                            border-color: #000000 !important;
+                            color: #000000 !important;
                         }
                     </style>
                     <div class="mt-10 flex justify-center">
