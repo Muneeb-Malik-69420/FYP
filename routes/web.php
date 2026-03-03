@@ -66,6 +66,8 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
     Route::get('/checkout', Checkout::class)->name('checkout');
     Route::get('/order-success', OrderSuccess::class)->name('order.success');
+    Route::get('/payment-success/{id}', OrderSuccess::class)->name('payment.success');
+    Route::get('/payment-cancel', OrderSuccess::class)->name('payment.cancel');
 });
 
 // Supplier routes
