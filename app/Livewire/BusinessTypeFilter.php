@@ -11,8 +11,8 @@ class BusinessTypeFilter extends Component
     public function setType($type)
     {
         $this->selectedType = $type;
-        
-        // This triggers the #[On('filter-by-type')] in your Dashboard
+
+        // Dispatch event to parent dashboard
         $this->dispatch('filter-by-type', type: $type);
     }
 

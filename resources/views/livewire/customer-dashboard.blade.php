@@ -5,15 +5,15 @@
         <livewire:business-type-filter />
 
         <div class="relative mt-4">
-            
+
             {{-- 1. THE SKELETON GRID --}}
             {{-- We use wire:loading.grid to force the display to be a grid when loading --}}
             <div wire:loading.grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                @foreach(range(1, 8) as $index)
+                @foreach (range(1, 8) as $index)
                     <div class="bg-white border border-gray-100 flex flex-col h-72 animate-pulse shadow-sm">
                         {{-- Image placeholder --}}
-                        <div class="h-44 w-full bg-gray-200"></div> 
-                        
+                        <div class="h-44 w-full bg-gray-200"></div>
+
                         {{-- Content placeholder --}}
                         <div class="px-3 py-4 flex flex-col gap-3">
                             <div class="flex justify-between items-center">
@@ -38,7 +38,8 @@
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
 
                             <div class="absolute bottom-3 left-3">
-                                <span class="bg-black/60 backdrop-blur-sm text-white text-[7px] font-black px-2 py-1 uppercase tracking-[0.2em]">
+                                <span
+                                    class="bg-black/60 backdrop-blur-sm text-white text-[7px] font-black px-2 py-1 uppercase tracking-[0.2em]">
                                     {{ $supplier->business_type }}
                                 </span>
                             </div>
@@ -46,7 +47,8 @@
 
                         <div class="px-3 py-4 flex flex-col flex-grow">
                             <div class="flex justify-between items-start gap-2">
-                                <h4 class="text-sm font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#52c234] transition-colors leading-none truncate">
+                                <h4
+                                    class="text-sm font-black text-gray-900 uppercase tracking-tighter group-hover:text-[#52c234] transition-colors leading-none truncate">
                                     {{ $supplier->business_name }}
                                 </h4>
                                 <div class="flex items-center gap-1 shrink-0 pt-0.5">
@@ -63,10 +65,28 @@
                         </div>
                     </a>
                 @empty
-                    <div class="col-span-full py-20 text-left text-gray-300 font-black uppercase text-[10px] tracking-widest">
+                    <div
+                        class="col-span-full py-20 text-left text-gray-300 font-black uppercase text-[10px] tracking-widest">
                         No active partners found
                     </div>
                 @endforelse
+
+                <div>
+                    @if ($suppliers->hasPages())
+    <style>
+        /* This targets the default Tailwind pagination classes */
+        nav[role="navigation"] span[aria-current="page"] > span {
+            background-color: #16a34a !important; /* Eco Green */
+            color: white !important;
+            border-color: #16a34a !important;
+        }
+    </style>
+    
+    <div class="mt-10 flex justify-center" wire:loading.remove>
+        {{ $suppliers->links() }}
+    </div>
+@endif
+                </div>
             </div>
         </div>
     </div>

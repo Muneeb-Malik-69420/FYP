@@ -3,65 +3,103 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\Supplier;
+use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use App\Models\Supplier;
 
 class CustomerDashboard extends Component
 {
+    use WithPagination;
+
+    protected $paginationTheme = 'tailwind';
+
     public $selectedCity;
     public $searchQuery = '';
-    public $businessType = ''; // <--- Add this
+    public $businessType = '';
 
     public function mount()
     {
         $this->selectedCity = session('user_city', 'Jhelum');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Event Listeners
+    |--------------------------------------------------------------------------
+    */
+
     #[On('filtersUpdated')]
     public function updateFilters($data)
     {
-        $this->selectedCity = $data['city'];
-        $this->searchQuery = $data['search'];
+        $this->selectedCity = $data['city'] ?? $this->selectedCity;
+        $this->searchQuery = $data['search'] ?? $this->searchQuery;
+
+        $this->resetPage();
     }
 
-    // --- Add this new listener ---
     #[On('filter-by-type')]
     public function updateBusinessType($type)
     {
         $this->businessType = $type;
+        $this->resetPage();
     }
 
-    public function render()
-{
-    $suppliers = Supplier::where('status', 'approved')
-        // Ensure the supplier has at least one food item with quantity > 0
-        ->whereHas('foodItems', function ($q) {
-            $q->where('quantity', '>', 0);
-        })
-        ->whereHas('city', function ($query) {
-            $query->where('name', $this->selectedCity);
-        })
-        ->when($this->businessType, function ($query) {
-            $query->where('business_type', $this->businessType); 
-        })
-        ->when($this->searchQuery, function ($query) {
-            $query->where(function ($q) {
-                $q->where('business_name', 'like', '%' . $this->searchQuery . '%')
-                  ->orWhereHas('foodItems', function ($foodQ) {
-                      $foodQ->where('item_name', 'like', '%' . $this->searchQuery . '%')
-                            ->where('quantity', '>', 0); // Keep search relevant to active items
-                  });
-            });
-        })
-        // Also keep 'with' so the items are eager-loaded for the view
-        ->with(['foodItems' => function($q) {
-            $q->where('quantity', '>', 0);
-        }])
-        ->get();
+    /*
+    |--------------------------------------------------------------------------
+    | Computed Property (Cleaner Query Logic)
+    |--------------------------------------------------------------------------
+    */
 
-    return view('livewire.customer-dashboard', [
-        'suppliers' => $suppliers,
-    ])->layout('layout.customer');
-}
-    
+    public function getSuppliersProperty()
+    {
+        return Supplier::query()
+            ->where('status', 'approved')
+
+            // Must have active food items
+            ->whereHas('foodItems', fn ($q) =>
+                $q->where('quantity', '>', 0)
+            )
+
+            // Filter by city
+            ->whereHas('city', fn ($q) =>
+                $q->where('name', $this->selectedCity)
+            )
+
+            // Filter by business type
+            ->when($this->businessType, fn ($q) =>
+                $q->where('business_type', $this->businessType)
+            )
+
+            // Search filter
+            ->when($this->searchQuery, function ($q) {
+                $q->where(function ($subQuery) {
+                    $subQuery
+                        ->where('business_name', 'like', "%{$this->searchQuery}%")
+                        ->orWhereHas('foodItems', fn ($foodQ) =>
+                            $foodQ->where('item_name', 'like', "%{$this->searchQuery}%")
+                                  ->where('quantity', '>', 0)
+                        );
+                });
+            })
+
+            // Eager load only active food items
+            ->with(['foodItems' => fn ($q) =>
+                $q->where('quantity', '>', 0)
+            ])
+
+            ->paginate(12); // 🔥 Change number per page as needed
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
+    public function render()
+    {
+        return view('livewire.customer-dashboard', [
+            'suppliers' => $this->suppliers,
+        ])->layout('layout.customer');
+    }
 }
