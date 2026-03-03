@@ -44,9 +44,7 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 // Route::view('/blog', 'Customer.public.blog')->name('Blog');
 
 Route::get('/', CustomerDashboard::class)->name('Home');
-// Route::get('/customer/dashboard', [CustomerDashboardController::class, 'index'])->name('customer.dashboard');
- 
-    Route::get('/checkout/guest', GuestCheckout::class)->name('checkout.guest');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -59,15 +57,17 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 Route::get('/restaurant/{id}', RestaurantProfile::class)
     ->name('restaurants.show');
+    Route::get('/checkout', Checkout::class)->name('checkout');
+    Route::get('/order-success', OrderSuccess::class)->name('order.success');
+    Route::get('/payment-success/{id}', OrderSuccess::class)->name('payment.success');
+    Route::get('/payment-cancel', OrderSuccess::class)->name('payment.cancel');
+    
 // Customer routes
 Route::middleware(['auth', 'role:customer'])->group(function () {
 
     // This creates the 'restaurants.show' route name that the Blade file is looking for
 
-    Route::get('/checkout', Checkout::class)->name('checkout');
-    Route::get('/order-success', OrderSuccess::class)->name('order.success');
-    Route::get('/payment-success/{id}', OrderSuccess::class)->name('payment.success');
-    Route::get('/payment-cancel', OrderSuccess::class)->name('payment.cancel');
+    
 });
 
 // Supplier routes

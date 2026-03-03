@@ -111,17 +111,15 @@ class RestaurantBasket extends Component
     /**
      * Route to the appropriate checkout flow.
      */
-    public function processCheckout(): mixed
-    {
-        if (empty($this->cart)) {
-            $this->dispatch('show-toast', message: 'Your basket is empty!', type: 'error');
-            return null;
-        }
-
-        return auth()->check()
-            ? $this->redirect(route('checkout'), navigate: true)
-            : $this->redirect(route('checkout.guest'), navigate: true);
+   public function processCheckout(): mixed
+{
+    if (empty($this->cart)) {
+        $this->dispatch('show-toast', message: 'Your basket is empty!', type: 'error');
+        return null;
     }
+
+    return $this->redirect(route('checkout'), navigate: true);
+}
 
     // -------------------------------------------------------------------------
     // Private helpers

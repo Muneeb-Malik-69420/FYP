@@ -7,24 +7,35 @@ use Livewire\Component;
 
 class OrderSuccess extends Component
 {
-    public $order;
+    public Order $order;
+    public string $customerName = '';
 
-    public function mount($id)
+    public function mount(int $id): void
     {
-        // 1. Find the order by the ID passed in the URL
-        $this->order = Order::findOrFail($id);
+        $this->order = Order::with('items')->findOrFail($id);
 
-        // 2. If it's still 'pending', update it to 'confirmed'
-        // This is the "Switch" that flips the status in your database
-        if ($this->order->status === 'pending' || $this->order->status === 'payment_failed') {
-            $this->order->update([
-                'status' => 'confirmed',
-                // 'payment_status' => 'paid', // Uncomment if you have this column
-            ]);
-            
-            // Optional: Send an email or clear a session cart here
-            // session()->forget('cart');
+        // Resolve name now and store as a plain string —
+        // Livewire drops loaded relationships during serialization
+        // so we can't rely on $order->user->name in the blade
+        $this->customerName = $this->order->user?->name
+            ?? $this->order->guest_name
+            ?? '—';
+
+        // Only confirm genuinely pending orders — prevents re-confirming on refresh
+        if ($this->order->status === 'pending') {
+            $this->order->update(['status' => 'confirmed']);
+            $this->order->refresh();
         }
+
+        // Auth users must own the order
+        if (auth()->check() && $this->order->user_id !== null && $this->order->user_id !== auth()->id()) {
+            abort(403);
+        }
+    }
+
+    public function goHome(): mixed
+    {
+        return $this->redirect(route('home'), navigate: true);
     }
 
     public function render()

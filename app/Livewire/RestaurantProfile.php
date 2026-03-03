@@ -8,66 +8,110 @@ use Livewire\Component;
 
 class RestaurantProfile extends Component
 {
-    /**
-     * The supplier model instance.
-     */
-    public $supplier;
-    
-    /**
-     * The currently active category for the navigation highlight.
-     * Defaulted to 'All Deals'.
-     */
-    public $activeCategory = 'All Deals'; 
+    // -------------------------------------------------------------------------
+    // State
+    // -------------------------------------------------------------------------
 
-    /**
-     * The real-time search string from the search bar.
-     */
-    public $search = '';
+    public Supplier $supplier;
+    public string   $activeCategory = 'All Deals';
+    public string   $search         = '';
 
-    /**
-     * Initialize the component with the supplier ID from the route.
-     */
-    public function mount($id) 
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
+
+    public function mount(int $id): void
     {
         $this->supplier = Supplier::findOrFail($id);
     }
 
-    /**
-     * Updates the active category and dispatches a signal to the DealsProfile component.
-     * This keeps the menu grid in sync with the navigation bar.
-     */
-    public function setCategory($category)
+    // -------------------------------------------------------------------------
+    // Actions
+    // -------------------------------------------------------------------------
+
+    public function setCategory(string $category): void
     {
         $this->activeCategory = $category;
-
-        // Tell the Child (DealsProfile) to filter its results.
-        $this->dispatch('filterMenu', category: $category, search: $this->search);
+        // No dispatch needed — render() reacts to property change automatically
     }
 
     /**
-     * Lifecycle hook that fires every time the search input changes.
-     * It ensures the menu grid filters as the user types.
+     * Livewire calls this automatically when $search changes via wire:model.
+     * Nothing extra needed — render() re-runs on any property update.
      */
-    public function updatedSearch()
+
+    public function addToBasket(int $itemId): void
     {
-        // Real-time search update for the child component.
-        $this->dispatch('filterMenu', category: $this->activeCategory, search: $this->search);
+        $item = FoodItem::where('supplier_id', $this->supplier->id)
+            ->where('status', 'available')
+            ->findOrFail($itemId);
+
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$itemId])) {
+            // Respect stock ceiling
+            if ($cart[$itemId]['quantity'] >= $item->quantity) {
+                $this->dispatch('show-toast', message: 'No more stock available!', type: 'error');
+                return;
+            }
+            $cart[$itemId]['quantity']++;
+        } else {
+            $cart[$itemId] = [
+                'name'           => $item->item_name,
+                'price'          => (float) $item->discounted_price,
+                'original_price' => (float) $item->original_price,
+                'quantity'       => 1,
+                'image'          => $item->image_path,
+            ];
+        }
+
+        session()->put('cart', $cart);
+
+        $this->dispatch('cartUpdated');
+        $this->dispatch('show-toast', message: "Added {$item->item_name} to basket!");
     }
 
-    /**
-     * Renders the view with dynamic categories pulled from the supplier's food items.
-     */
+    public function closeRestaurant(): mixed
+    {
+        return $this->redirect(route('home'), navigate: true);
+    }
+
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
+
     public function render()
     {
-        // Fetch unique categories belonging to this specific supplier.
+        // Categories for this supplier
         $categories = FoodItem::where('supplier_id', $this->supplier->id)
             ->where('status', 'available')
             ->distinct()
+            ->orderBy('category')
             ->pluck('category')
-            ->prepend('All Deals');
+            ->filter()
+            ->prepend('All Deals')
+            ->values();
+
+        // Filtered deals query
+        $foodItems = FoodItem::where('supplier_id', $this->supplier->id)
+            ->where('status', 'available')
+            ->when($this->activeCategory !== 'All Deals', fn($q) =>
+                $q->where('category', $this->activeCategory)
+            )
+            ->when(trim($this->search) !== '', fn($q) =>
+                $q->where(function ($sub) {
+                    $term = '%' . trim($this->search) . '%';
+                    $sub->where('item_name',   'like', $term)
+                        ->orWhere('description', 'like', $term);
+                })
+            )
+            ->orderByRaw('quantity > 0 DESC') // sold-out items sink to bottom
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('livewire.restaurant-profile', [
-            'categories' => $categories
+            'categories' => $categories,
+            'foodItems'  => $foodItems,
         ])->layout('layout.customer');
     }
 }

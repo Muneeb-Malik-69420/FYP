@@ -26,9 +26,7 @@ return new class extends Migration
 
             // Stripe Specific (Optional but recommended)
             $table->string('stripe_session_id')->nullable();
-            $table->string('guest_name')->nullable()->after('phone');
-            $table->string('guest_email')->nullable()->after('guest_name');
-            $table->text('notes')->nullable()->after('guest_email');
+           
             $table->timestamps();
         });
     }
