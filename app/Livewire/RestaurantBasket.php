@@ -2,164 +2,125 @@
 
 namespace App\Livewire;
 
+use App\Models\FoodItem;
 use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Computed;
 
 class RestaurantBasket extends Component
 {
-    public array $cart     = [];
-    public float $total    = 0.0;
-    public float $savings  = 0.0;
-    public int   $itemCount = 0;
-
-    /**
-     * Maximum quantity allowed per line item.
-     */
-    private const MAX_QTY = 99;
-
     // -------------------------------------------------------------------------
-    // Lifecycle
+    // Listeners
     // -------------------------------------------------------------------------
 
-    public function mount(): void
+    protected $listeners = ['cartUpdated' => '$refresh'];
+
+    // -------------------------------------------------------------------------
+    // Computed helpers
+    // -------------------------------------------------------------------------
+
+    public function getCartProperty(): array
     {
-        $this->loadCart();
+        return session()->get('cart', []);
+    }
+
+    public function getItemCountProperty(): int
+    {
+        return array_sum(array_column($this->cart, 'quantity'));
+    }
+
+    public function getTotalProperty(): float
+    {
+        return array_sum(
+            array_map(fn($i) => $i['price'] * $i['quantity'], $this->cart)
+        );
+    }
+
+    public function getSavingsProperty(): float
+    {
+        return array_sum(
+            array_map(fn($i) => (
+                isset($i['original_price'])
+                    ? ($i['original_price'] - $i['price']) * $i['quantity']
+                    : 0
+            ), $this->cart)
+        );
     }
 
     // -------------------------------------------------------------------------
-    // Event listeners
+    // Actions
     // -------------------------------------------------------------------------
 
-    /**
-     * Reload cart when another component signals a change.
-     * The `$fromSelf` guard prevents re-reading after our own dispatches,
-     * avoiding the cartUpdated → loadCart → cartUpdated loop.
-     */
-    #[On('cartUpdated')]
-    public function loadCart(bool $fromSelf = false): void
+    public function updateQuantity(int $itemId, string $action): void
     {
-        if ($fromSelf) return;
+        $cart = session()->get('cart', []);
 
-        $this->cart = session()->get('cart', []);
-        $this->recalculate();
-    }
-
-    // -------------------------------------------------------------------------
-    // Public actions
-    // -------------------------------------------------------------------------
-
-    /**
-     * Increase or decrease a single item's quantity.
-     */
-    public function updateQuantity(int|string $itemId, string $action): void
-    {
-        if (! isset($this->cart[$itemId])) return;
-
-        // Validate action to prevent arbitrary input
-        if (! in_array($action, ['increase', 'decrease'], true)) return;
+        if (!isset($cart[$itemId])) return;
 
         if ($action === 'increase') {
-            $current = $this->cart[$itemId]['quantity'];
-            if ($current >= self::MAX_QTY) {
-                $this->dispatch('show-toast', message: 'Maximum quantity reached!', type: 'error');
+            // Enforce max_quantity ceiling stored at add-time
+            $max = $cart[$itemId]['max_quantity'] ?? PHP_INT_MAX;
+
+            // Also re-check live stock in case it changed
+            $liveStock = FoodItem::find($itemId)?->quantity ?? 0;
+            $ceiling   = min($max, $liveStock);
+
+            if ($cart[$itemId]['quantity'] >= $ceiling) {
+                $this->dispatch('show-toast',
+                    message: "Only {$ceiling} available — that's the max!",
+                    type: 'error'
+                );
                 return;
             }
-            $this->cart[$itemId]['quantity']++;
-        } else {
-            if ($this->cart[$itemId]['quantity'] > 1) {
-                $this->cart[$itemId]['quantity']--;
-            } else {
-                unset($this->cart[$itemId]);
+            $cart[$itemId]['quantity']++;
+
+        } elseif ($action === 'decrease') {
+            if ($cart[$itemId]['quantity'] <= 1) {
+                // Remove item entirely when decremented to zero
+                unset($cart[$itemId]);
+                session()->put('cart', $cart);
+
+                if (empty($cart)) {
+                    session()->forget('cart_supplier_id');
+                }
+
+                $this->dispatch('cartUpdated');
+                return;
             }
+            $cart[$itemId]['quantity']--;
         }
 
-        $this->syncCart();
+        session()->put('cart', $cart);
+        $this->dispatch('cartUpdated');
     }
 
-    /**
-     * Remove an entire line item from the cart.
-     */
-    public function removeFromCart(int|string $itemId): void
+    public function removeFromCart(int $itemId): void
     {
-        if (! isset($this->cart[$itemId])) return;
+        $cart = session()->get('cart', []);
+        unset($cart[$itemId]);
+        session()->put('cart', $cart);
 
-        $name = $this->cart[$itemId]['name'] ?? 'Item';
-        unset($this->cart[$itemId]);
+        if (empty($cart)) {
+            session()->forget('cart_supplier_id');
+        }
 
-        $this->syncCart();
-        $this->dispatch('show-toast', message: "{$name} removed.", type: 'error');
+        $this->dispatch('cartUpdated');
+        $this->dispatch('show-toast', message: 'Item removed.');
     }
 
-    /**
-     * Clear the entire basket.
-     */
     public function clearBasket(): void
     {
         session()->forget('cart');
-        $this->cart      = [];
-        $this->total     = 0.0;
-        $this->savings   = 0.0;
-        $this->itemCount = 0;
-
-        // Notify OTHER components — pass fromSelf so our own listener skips
-        $this->dispatch('cartUpdated', fromSelf: true);
-        $this->dispatch('basket-updated', count: 0); // for mobile badge
-        $this->dispatch('show-toast', message: 'Basket cleared!');
+        session()->forget('cart_supplier_id');
+        $this->dispatch('cartUpdated');
     }
 
-    /**
-     * Route to the appropriate checkout flow.
-     */
-   public function processCheckout(): mixed
-{
-    if (empty($this->cart)) {
-        $this->dispatch('show-toast', message: 'Your basket is empty!', type: 'error');
-        return null;
-    }
-
-    return $this->redirect(route('checkout'), navigate: true);
-}
-
-    // -------------------------------------------------------------------------
-    // Private helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Persist cart to session, recalculate totals, and notify other components.
-     */
-    private function syncCart(): void
+    public function processCheckout(): mixed
     {
-        session()->put('cart', $this->cart);
-        $this->recalculate();
-
-        $this->dispatch('cartUpdated', fromSelf: true);
-        $this->dispatch('basket-updated', count: $this->itemCount); // mobile badge
-    }
-
-    /**
-     * Recalculate total, savings, and item count from the current cart.
-     * Relies on each cart item having: price, original_price (optional), quantity.
-     */
-    private function recalculate(): void
-    {
-        $total    = 0.0;
-        $savings  = 0.0;
-        $count    = 0;
-
-        foreach ($this->cart as $item) {
-            $qty   = (int)   ($item['quantity']       ?? 1);
-            $price = (float) ($item['price']          ?? 0);
-            $orig  = (float) ($item['original_price'] ?? $price);
-
-            $total   += $price * $qty;
-            $savings += ($orig - $price) * $qty;
-            $count   += $qty;
+        if (empty($this->cart)) {
+            $this->dispatch('show-toast', message: 'Your basket is empty.', type: 'error');
+            return null;
         }
 
-        $this->total     = round($total,   2);
-        $this->savings   = round($savings, 2);
-        $this->itemCount = $count;
+        return $this->redirect(route('checkout'), navigate: true);
     }
 
     // -------------------------------------------------------------------------
@@ -168,6 +129,11 @@ class RestaurantBasket extends Component
 
     public function render()
     {
-        return view('livewire.restaurant-basket');
+        return view('livewire.restaurant-basket', [
+            'cart'      => $this->cart,
+            'itemCount' => $this->itemCount,
+            'total'     => $this->total,
+            'savings'   => $this->savings,
+        ]);
     }
 }

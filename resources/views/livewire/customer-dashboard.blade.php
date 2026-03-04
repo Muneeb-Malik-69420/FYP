@@ -1,4 +1,4 @@
-<main class="bg-gray-50 min-h-screen">
+<main class="bg-gray-200 min-h-screen">
     <div class="w-full pl-4 pr-10 pb-10">
 
         {{-- Filter bar stays outside loading container to prevent flicker --}}
@@ -7,7 +7,7 @@
         <div class="relative mt-4">
 
             {{-- 1. SKELETON GRID (shown while loading) --}}
-            <div wire:loading.grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div wire:loading.grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 gap-4">
                 @foreach (range(1, 8) as $index)
                     <div class="bg-white border border-gray-100 flex flex-col h-72 animate-pulse shadow-sm rounded-sm">
                         {{-- Image placeholder --}}
@@ -26,7 +26,7 @@
 
             {{-- 2. ACTUAL DATA GRID (hidden while loading) --}}
             <div wire:loading.remove>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 gap-4">
                     @forelse($suppliers as $supplier)
                         <a wire:navigate href="{{ route('restaurants.show', $supplier->id) }}"
                             class="group bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col h-full">

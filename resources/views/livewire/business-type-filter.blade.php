@@ -1,4 +1,4 @@
-<div class="sticky top-[58px] z-40 bg-gray-50/95 backdrop-blur-md py-3 border-b border-gray-100 mb-0">
+<div class="sticky top-[58px] z-40 bg-gray-200 backdrop-blur-md py-3  mb-0">
     <div class="flex items-center gap-6 overflow-x-auto scrollbar-hide justify-center">
         @php
             $types = [
