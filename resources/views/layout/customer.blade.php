@@ -23,8 +23,10 @@
         @yield('content')
         {{ $slot ?? '' }} {{-- This allows it to work with both Layouts and Components --}}
     </main>
-
+ @livewire('favourites-panel')
     @livewireScripts
     @yield('scripts')
+    
+
 </body>
 </html>

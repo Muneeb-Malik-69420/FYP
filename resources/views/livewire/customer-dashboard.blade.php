@@ -1,4 +1,4 @@
-<main class="bg-gray-200 min-h-screen">
+<main class="bg-white min-h-screen">
     <div class="w-full pl-4 pr-10 pb-10">
 
         {{-- Filter bar stays outside loading container to prevent flicker --}}
@@ -7,9 +7,9 @@
         <div class="relative mt-4">
 
             {{-- 1. SKELETON GRID (shown while loading) --}}
-            <div wire:loading.grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 gap-4">
+            <div wire:loading.grid class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach (range(1, 8) as $index)
-                    <div class="bg-white border border-gray-100 flex flex-col h-72 animate-pulse shadow-sm rounded-sm">
+                    <div class="bg-gray-50 border border-gray-200 flex flex-col h-72 animate-pulse rounded-sm">
                         {{-- Image placeholder --}}
                         <div class="h-44 w-full bg-gray-200"></div>
                         {{-- Content placeholder --}}
@@ -18,7 +18,7 @@
                                 <div class="h-4 w-3/4 bg-gray-200 rounded"></div>
                                 <div class="h-3 w-8 bg-gray-200 rounded"></div>
                             </div>
-                            <div class="h-3 w-1/2 bg-gray-100 rounded"></div>
+                            <div class="h-3 w-1/2 bg-gray-200 rounded"></div>
                         </div>
                     </div>
                 @endforeach
@@ -26,12 +26,12 @@
 
             {{-- 2. ACTUAL DATA GRID (hidden while loading) --}}
             <div wire:loading.remove>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     @forelse($suppliers as $supplier)
                         <a wire:navigate href="{{ route('restaurants.show', $supplier->id) }}"
-                            class="group bg-white rounded-sm overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex flex-col h-full">
+                            class="group bg-cardcolor rounded-sm overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-300 flex flex-col h-full">
 
-                            <div class="relative h-44 w-full overflow-hidden bg-gray-100">
+                            <div class="relative h-44 w-full overflow-hidden bg-gray-200">
                                 <img
                                     src="{{ $supplier->getThumbnail() }}"
                                     alt="{{ $supplier->business_name }}"
@@ -57,7 +57,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="mt-1 flex items-start text-gray-400">
+                                <div class="mt-1 flex items-start text-gray-500">
                                     <i class="fas fa-map-marker-alt text-[7px] mr-1.5 mt-0.5 shrink-0" aria-hidden="true"></i>
                                     <p class="text-[8px] font-bold uppercase tracking-widest leading-tight">
                                         {{ $supplier->business_location }}
@@ -66,13 +66,13 @@
                             </div>
                         </a>
                     @empty
-                        <div class="col-span-full py-20 text-left text-gray-300 font-black uppercase text-[10px] tracking-widest">
+                        <div class="col-span-full py-20 text-left text-gray-400 font-black uppercase text-[10px] tracking-widest">
                             No active partners found
                         </div>
                     @endforelse
                 </div>
 
-                {{-- Pagination lives outside the card grid --}}
+                {{-- Pagination --}}
                 @if($suppliers->hasPages())
                     <style>
                         nav[aria-label="Pagination Navigation"] [aria-current="page"] span,

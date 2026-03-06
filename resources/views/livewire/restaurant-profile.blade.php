@@ -1,4 +1,4 @@
-<div class="animate-fadeIn bg-gray-200 overflow-hidden font-sans">
+<div class="animate-fadeIn bg-white overflow-hidden font-sans">
 
     {{-- ═══════════════════════════════════════
         1. HERO SECTION
@@ -15,19 +15,50 @@
         </div>
 
         {{-- Breadcrumb --}}
-        <div class="absolute top-6 left-0 w-full">
-            <div class="max-w-7xl mx-auto px-6">
-                <nav class="flex items-center gap-3 text-white/50">
+        <div class="absolute top-6 left-0 w-full z-10">
+            <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+                <nav class="flex items-center gap-3 text-white/50" aria-label="Breadcrumb">
                     <button wire:click="closeRestaurant"
-                        class="text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors duration-200">
+                        class="text-[10px] font-black uppercase tracking-widest hover:text-white transition-colors duration-200 focus:outline-none focus:ring-1 focus:ring-white/20 rounded"
+                        aria-label="Back to Explore">
                         Explore
                     </button>
-                    <svg class="w-2 h-2 opacity-40" fill="currentColor" viewBox="0 0 6 10">
+
+                    <svg class="w-1.5 h-1.5 opacity-30" viewBox="0 0 6 10" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 1l4 4-4 4" />
                     </svg>
+
                     <span
-                        class="text-[11px] font-black uppercase tracking-widest text-white/80">{{ $supplier->business_name }}</span>
+                        class="text-[11px] font-black uppercase tracking-widest text-white/80 truncate max-w-[200px] sm:max-w-none">
+                        {{ $supplier->business_name }}
+                    </span>
                 </nav>
+                {{-- <button x-data="{ liked: false }" x-on:click="liked = !liked"
+                        :class="liked ? 'bg-red-500 border-red-500' : 'bg-white/10 border-white/30 hover:bg-white/20'"
+                        class="shrink-0 h-14 w-14 rounded-full flex items-center justify-center border backdrop-blur-sm transition-all duration-300 transform hover:scale-110 group shadow-xl">
+                        <i :class="liked ? 'fas text-white' : 'far text-white group-hover:text-red-400'"
+                            class="fa-heart text-lg transition-all duration-200"></i>
+                    </button> --}}
+                @auth
+                    @php
+                        $isFav = \App\Models\Favourite::where('user_id', auth()->id())
+                            ->where('supplier_id', $supplier->id)
+                            ->exists();
+                    @endphp
+                    <button wire:click="toggleFavourite" wire:loading.attr="disabled"
+                        class="shrink-0 h-14 w-14 rounded-full flex items-center justify-center border backdrop-blur-sm
+                   transition-all duration-300 transform hover:scale-110 shadow-xl
+                   {{ $isFav ? 'bg-primary border-primary' : 'bg-white/10 border-white/30 hover:bg-white/20' }}">
+                        <i class="fa-heart text-lg text-white {{ $isFav ? 'fas' : 'far' }}"></i>
+                    </button>
+                @else
+                    <a href="{{ route('login') }}"
+                        class="shrink-0 h-14 w-14 rounded-full flex items-center justify-center border border-white/30
+              bg-white/10 hover:bg-white/20 backdrop-blur-sm transition shadow-xl">
+                        <i class="far fa-heart text-white text-lg"></i>
+                    </a>
+                @endauth
             </div>
         </div>
 
@@ -43,8 +74,7 @@
                         </h1>
 
                         <div class="flex flex-wrap items-center gap-2">
-                            <span
-                                class="inline-flex items-center gap-1.5 bg-[#52c234] text-gray-800 px-3 py-1 rounded-sm">
+                            <span class="inline-flex items-center gap-1.5 bg-primary second px-3 py-1 rounded-sm">
                                 <span class="text-[10px] font-black uppercase tracking-wider">Eco-Partner</span>
                             </span>
 
@@ -71,12 +101,7 @@
                         @endif
                     </div>
 
-                    <button x-data="{ liked: false }" x-on:click="liked = !liked"
-                        :class="liked ? 'bg-red-500 border-red-500' : 'bg-white/10 border-white/30 hover:bg-white/20'"
-                        class="shrink-0 h-14 w-14 rounded-full flex items-center justify-center border backdrop-blur-sm transition-all duration-300 transform hover:scale-110 group shadow-xl">
-                        <i :class="liked ? 'fas text-white' : 'far text-white group-hover:text-red-400'"
-                            class="fa-heart text-lg transition-all duration-200"></i>
-                    </button>
+
                 </div>
             </div>
         </div>
@@ -95,12 +120,12 @@
 
                 <input wire:model.live.debounce.300ms="search" type="text" placeholder="FIND A DEAL..."
                     class="w-full bg-gray-100/80 border border-gray-200 rounded-md py-2 pl-9 pr-8 text-[10px] font-black
-                        tracking-widest text-gray-800 placeholder-gray-400 focus:ring-0 focus:border-black
+                        tracking-widest second placeholder-gray-400 focus:ring-0 focus:border-black
                         focus:bg-white transition-all outline-none uppercase">
 
                 @if ($search)
                     <button wire:click="$set('search', '')"
-                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-800 hover:text-gray-500 transition-colors">
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 second hover:text-gray-500 transition-colors">
                         <i class="fas fa-times text-xs"></i>
                     </button>
                 @endif
@@ -112,9 +137,7 @@
                 @foreach ($categories as $cat)
                     <button wire:click="setCategory('{{ $cat }}')"
                         class="shrink-0 px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition-all duration-200
-                            {{ $activeCategory === $cat
-                                ? 'bg-[#52c234] text-gray-800 shadow-sm'
-                                : 'text-gray-800 hover:text-gray-900 hover:bg-gray-100' }}">
+                            {{ $activeCategory === $cat ? 'bg-primary second shadow-sm' : 'second hover:text-gray-900 hover:bg-gray-100' }}">
                         {{ $cat }}
                     </button>
                 @endforeach
@@ -125,22 +148,21 @@
     {{-- ═══════════════════════════════════════
         3. MAIN CONTENT: DEALS + BASKET
     ═══════════════════════════════════════ --}}
-    <div class="max-w-7xl mx-auto ">
+    <div class="max-w-7xl mx-auto bg-white">
         <div class="flex flex-col lg:flex-row items-start gap-4">
 
             {{-- LEFT: Deals grid --}}
             <div
-                class="w-full lg:w-[70%] lg:pr-4 pt-7 pb-24 lg:h-[calc(100vh-121.5px)] lg:overflow-y-auto no-scrollbar">
+                class="w-full lg:w-[70%] lg:pr-4 px-4 pt-4 pb-24 lg:h-[calc(100vh-121.5px)] lg:overflow-y-auto no-scrollbar  border border-gray-100 rounded-sm shadow-sm bg-white">
 
-                <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-between mb-4 px-1">
                     <div class="flex items-center gap-2.5">
-                        <h2 class="text-[13px] font-black uppercase tracking-widest text-gray-800">
+                        <h2 class="text-[13px] font-black uppercase tracking-widest second">
                             {{ $activeCategory === 'All Deals' ? 'All Deals' : $activeCategory }}
                         </h2>
                         <span
-                            class="bg-[#52c234] text-gray-800 text-[9px] font-black
-                                     w-5 h-5 rounded-full flex items-center justify-center leading-none">
-                            {{ $foodItems->count() > 9 ? '9+' : $foodItems->count() }}
+                            class="bg-white second text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
+                            {{ $foodItems->count() > 99 ? '99+' : $foodItems->count() }}
                         </span>
                     </div>
                     @if ($search)
@@ -182,7 +204,7 @@
                         @endphp
 
                         <div wire:key="deal-{{ $item->id }}"
-                            class="group bg-white rounded-sm border-0 shadow-none p-4 flex justify-between min-h-[150px]
+                            class="group bg-cardcolor rounded-sm border-0 shadow-none p-4 flex justify-between min-h-[150px]
                                 transition-all duration-300 ease-out
                                 {{ $isSoldOut ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg hover:border-gray-200 hover:-translate-y-1.5 active:scale-[0.98] cursor-pointer' }}">
 
@@ -196,7 +218,7 @@
                                             </span>
                                         @elseif($percentage > 0)
                                             <span
-                                                class="bg-[#52c234] text-gray-800 text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
+                                                class="bg-primary second text-[11px] font-black uppercase tracking-wider px-2 py-0.5 rounded">
                                                 {{ $percentage }}% OFF
                                             </span>
                                         @endif
@@ -236,16 +258,15 @@
                                             alt="{{ $item->item_name }}">
                                     @else
                                         <img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=200"
-                                     class="w-full h-full object-cover"
-                                     alt="{{ $item['name'] }}"
-                                     loading="lazy">
+                                            class="w-full h-full object-cover" alt="{{ $item['name'] }}"
+                                            loading="lazy">
                                     @endif
                                 </div>
 
                                 @if (!$isSoldOut)
                                     <button wire:click="addToBasket({{ $item->id }})"
-                                        class="w-full flex items-center justify-center gap-1 bg-[#52c234] hover:bg-green-500
-                                               text-gray-800 text-[9px] font-black uppercase tracking-wider
+                                        class="w-full flex items-center justify-center gap-1 bg-primary hover:bg-green-500
+                                               second text-[9px] font-black uppercase tracking-wider
                                                px-3 py-1.5 rounded-lg transition-all duration-200">
                                         <i class="fas fa-plus text-[8px]"></i>
                                         Add
@@ -262,7 +283,7 @@
             </div>
 
             {{-- RIGHT: Basket --}}
-            <aside class="hidden lg:flex lg:w-[30%] lg:h-[calc(100vh-130px)] lg:sticky lg:top-[130px] flex-col">
+            <aside class="hidden lg:flex lg:w-[30%] lg:h-[calc(100vh-130px)] lg:sticky lg:top-[130px] flex-col ">
                 <div class="w-full h-full">
                     @livewire('restaurant-basket')
                 </div>
@@ -286,26 +307,113 @@
     </div>
 
     {{-- TOAST --}}
-    <div x-data="{ show: false, message: '', type: 'success' }"
-        x-on:show-toast.window="message = $event.detail.message; type = $event.detail.type ?? 'success'; show = true; setTimeout(() => show = false, 3000)"
-        x-show="show" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-6 scale-95"
-        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-        x-transition:leave-end="opacity-0 translate-y-6 scale-95"
-        class="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] pointer-events-none"
-        style="display: none;">
+    <div
+    x-data="{
+        show: false,
+        message: '',
+        type: 'success',
+        timer: null,
+        trigger(event) {
+            this.message = event.detail.message;
+            this.type = event.detail.type ?? 'success';
+            if (this.timer) clearTimeout(this.timer);
+            this.show = false;
+            this.$nextTick(() => {
+                this.show = true;
+                this.timer = setTimeout(() => this.show = false, 3500);
+            });
+        }
+    }"
+    x-on:show-toast.window="trigger($event)"
+    x-show="show"
+    x-transition:enter="transition ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-500"
+    x-transition:enter-start="opacity-0 translate-y-4 scale-90"
+    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+    x-transition:leave="transition ease-[cubic-bezier(0.4,0,1,1)] duration-300"
+    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+    x-transition:leave-end="opacity-0 translate-y-2 scale-95"
+    class="fixed bottom-24 lg:bottom-10 left-1/2 -translate-x-1/2 z-[100] pointer-events-none"
+    style="display: none;">
+
+    <div class="relative pointer-events-auto">
+
+        {{-- Soft glow backdrop --}}
         <div
-            class="bg-black text-white px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-white/10 pointer-events-auto max-w-xs">
-            <div :class="type === 'success' ? 'bg-white' : 'bg-red-500'"
-                class="rounded-full w-5 h-5 flex items-center justify-center shrink-0">
-                <i :class="type === 'success' ? 'fa-check text-black' : 'fa-times text-white'"
-                    class="fas text-[9px]"></i>
-            </div>
-            <span class="text-[11px] font-black uppercase tracking-widest leading-tight" x-text="message"></span>
+            :class="{
+                'bg-[#52c234]/20': type === 'success',
+                'bg-red-400/20':     type === 'error',
+                'bg-amber-400/20':   type === 'warning',
+                'bg-sky-400/20':     type === 'info'
+            }"
+            class="absolute inset-0 rounded-2xl blur-xl scale-110 transition-colors duration-500">
         </div>
+
+        {{-- Toast card --}}
+        <div class="relative flex items-center gap-3 bg-white/90 backdrop-blur-md border border-black/[0.06] rounded-2xl px-4 py-3 shadow-[0_8px_32px_-4px_rgba(0,0,0,0.12),0_2px_8px_-2px_rgba(0,0,0,0.06)] min-w-[220px] max-w-sm">
+
+            {{-- Icon badge --}}
+            <div
+                :class="{
+                    'bg-red-500':     type === 'error',
+                    'bg-amber-400':   type === 'warning',
+                    'bg-sky-500':     type === 'info'
+                }"
+                :style="type === 'success' ? 'background-color: #52c234' : ''"
+                class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 shadow-sm transition-colors duration-300">
+                <i
+                    :class="{
+                        'fa-check':          type === 'success',
+                        'fa-times':          type === 'error',
+                        'fa-exclamation':    type === 'warning',
+                        'fa-info':           type === 'info'
+                    }"
+                    class="fas text-white text-[9px]">
+                </i>
+            </div>
+
+            {{-- Message --}}
+            <span
+                class="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-700 leading-snug"
+                x-text="message">
+            </span>
+
+            {{-- Dismiss button --}}
+            <button
+                @click="show = false; clearTimeout(timer)"
+                class="ml-auto -mr-1 w-5 h-5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-black/5 transition-all duration-150">
+                <i class="fas fa-times text-[8px]"></i>
+            </button>
+
+        </div>
+
+        {{-- Progress bar --}}
+        <div class="absolute bottom-0 left-4 right-4 h-[2px] rounded-full overflow-hidden">
+            <div
+                x-show="show"
+                x-transition:enter="transition-none"
+                x-transition:enter-start="w-full"
+                x-transition:enter-end="w-full"
+                :class="{
+                    'bg-red-400':     type === 'error',
+                    'bg-amber-300':   type === 'warning',
+                    'bg-sky-400':     type === 'info'
+                }"
+                :style="type === 'success' ? 'background-color: #52c234' : ''"
+                class="h-full w-full origin-left"
+                style="animation: shrink 3.5s linear forwards;"
+                x-init="$watch('show', val => { if (val) $el.style.animation = 'none'; $el.offsetHeight; $el.style.animation = 'shrink 3.5s linear forwards'; })">
+            </div>
+        </div>
+
     </div>
+</div>
+
+<style>
+    @keyframes shrink {
+        from { transform: scaleX(1); }
+        to   { transform: scaleX(0); }
+    }
+</style>
 
     <style>
         @keyframes hero-zoom {

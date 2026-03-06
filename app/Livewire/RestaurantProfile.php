@@ -73,7 +73,26 @@ class RestaurantProfile extends Component
 
     public function closeRestaurant(): mixed
     {
-        return $this->redirect(route('home'), navigate: true);
+        return $this->redirect(route('Home'), navigate: true);
+    }
+    public function toggleFavourite(): void
+    {
+        if (!auth()->check()) return;
+
+        $existing = \App\Models\Favourite::where('user_id', auth()->id())
+            ->where('supplier_id', $this->supplier->id)
+            ->first();
+
+        if ($existing) {
+            $existing->delete();
+            $this->dispatch('show-toast', message: 'Removed from favourites', type: 'error');
+        } else {
+            \App\Models\Favourite::create([
+                'user_id'     => auth()->id(),
+                'supplier_id' => $this->supplier->id,
+            ]);
+            $this->dispatch('show-toast', message: 'Added to favourites!', type: 'success');
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -95,10 +114,14 @@ class RestaurantProfile extends Component
         // Filtered deals query
         $foodItems = FoodItem::where('supplier_id', $this->supplier->id)
             ->where('status', 'available')
-            ->when($this->activeCategory !== 'All Deals', fn($q) =>
+            ->when(
+                $this->activeCategory !== 'All Deals',
+                fn($q) =>
                 $q->where('category', $this->activeCategory)
             )
-            ->when(trim($this->search) !== '', fn($q) =>
+            ->when(
+                trim($this->search) !== '',
+                fn($q) =>
                 $q->where(function ($sub) {
                     $term = '%' . trim($this->search) . '%';
                     $sub->where('item_name',   'like', $term)

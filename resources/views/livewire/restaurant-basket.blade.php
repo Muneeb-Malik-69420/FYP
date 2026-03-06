@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
             <div class="flex items-center gap-2.5">
                 <div wire:key="basket-icon-{{ $itemCount }}" class="relative animate-pop">
-                    <i class="fas fa-shopping-cart text-sm text-[#52c234]"></i>
+                    <i class="fas fa-shopping-cart text-sm text-primary"></i>
                     @if($itemCount > 0)
                         <span class="absolute -top-1.5 -right-2 bg-black text-white text-[8px] font-black
                                      w-4 h-4 rounded-full flex items-center justify-center leading-none">
@@ -14,7 +14,7 @@
                         </span>
                     @endif
                 </div>
-                <h2 class="text-xs font-black uppercase tracking-widest text-gray-800">Your Basket</h2>
+                <h2 class="text-xs font-black uppercase tracking-widest second">Your Basket</h2>
             </div>
 
             @if(!empty($cart))
@@ -37,7 +37,7 @@
 
                 @forelse($cart as $id => $item)
                     <div wire:key="basket-item-{{ $id }}"
-                         class="group flex items-center gap-3 p-2.5 rounded-xl bg-gray-50
+                         class="group flex items-center gap-3 p-2.5 rounded-xl bg-cardcolor
                                  hover:bg-gray-100 border border-transparent hover:border-gray-200
                                  transition-all duration-200 animate-fadeIn">
 
@@ -63,7 +63,7 @@
                         {{-- Details --}}
                         <div class="flex-grow min-w-0">
                             <div class="flex justify-between items-center gap-1">
-                                <h4 class="text-xs font-black text-gray-800 uppercase tracking-wide truncate leading-tight">
+                                <h4 class="text-xs font-black second uppercase tracking-wide truncate leading-tight">
                                     {{ $item['name'] }}
                                 </h4>
                                 <button wire:click="removeFromCart({{ $id }})"
@@ -75,7 +75,7 @@
 
                             <div class="flex items-center justify-between gap-2 mt-1.5">
                                 <div class="flex items-center gap-1 shrink-0">
-                                    <span class="text-[11px] font-semibold text-gray-800">
+                                    <span class="text-[11px] font-semibold second">
                                         Rs. {{ number_format($item['price'], 0) }}
                                     </span>
                                     @if(!empty($item['original_price']) && $item['original_price'] > $item['price'])
@@ -91,7 +91,7 @@
                                         <i class="fas fa-minus text-[7px]"></i>
                                     </button>
                                     <span wire:key="qty-{{ $id }}-{{ $item['quantity'] }}"
-                                          class="text-xs font-black text-gray-800 px-1.5 min-w-[20px] text-center tabular-nums">
+                                          class="text-xs font-black second px-1.5 min-w-[20px] text-center tabular-nums">
                                         {{ $item['quantity'] }}
                                     </span>
                                     <button wire:click="updateQuantity({{ $id }}, 'increase')"
@@ -100,7 +100,7 @@
                                     </button>
                                 </div>
 
-                                <span class="text-sm font-black text-gray-800 tabular-nums shrink-0">
+                                <span class="text-sm font-black second tabular-nums shrink-0">
                                     Rs. {{ number_format($item['price'] * $item['quantity'], 0) }}
                                 </span>
                             </div>
@@ -110,17 +110,17 @@
                 @empty
                     {{-- ── Empty state ── --}}
                     <div class="flex flex-col items-center justify-center h-full py-12 px-6 text-center">
-                        <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-5 text-[#52c234]">
-                            <svg viewBox="0 0 24 24" fill="none" class="w-8 h-8 text text-[#52c234]"
+                        <div class="w-20 h-20 rounded-full bg-black flex items-center justify-center mb-5 text-primary">
+                            <svg viewBox="0 0 24 24" fill="none" class="w-8 h-8 text text-primary"
                                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
                                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                             </svg>
                         </div>
-                        <h3 class="text-xs font-black uppercase tracking-widest text-gray-800">
+                        <h3 class="text-xs font-black uppercase tracking-widest second">
                             Nothing here yet
                         </h3>
-                        <p class="text-xs text-gray-800 mt-2 font-normal">Add items to get started</p>
+                        <p class="text-xs second mt-2 font-normal">Add items to get started</p>
                     </div>
                 @endforelse
 
@@ -131,25 +131,25 @@
         @if(!empty($cart))
         <div class="px-5 py-3 border-t border-gray-100 space-y-2 mt-auto bg-white">
             <div class="flex justify-between items-center">
-                <span class="text-xs font-semibold text-gray-800">Delivery</span>
-                <span class="text-xs font-black uppercase tracking-wider text-[#52c234]">Free</span>
+                <span class="text-xs font-semibold second">Delivery</span>
+                <span class="text-xs font-black uppercase tracking-wider text-primary">Free</span>
             </div>
 
             <div class="flex justify-between items-center">
                 <div class="flex items-baseline gap-1.5">
-                    <span class="text-xs font-black uppercase tracking-wider text-gray-800">Total</span>
+                    <span class="text-xs font-black uppercase tracking-wider second">Total</span>
                     <span class="text-xs font-medium text-gray-400">
                         · {{ $itemCount }} {{ Str::plural('item', $itemCount) }}
                     </span>
                 </div>
-                <span class="text-xl font-black text-gray-800 tabular-nums tracking-tight">
+                <span class="text-xl font-black second tabular-nums tracking-tight">
                     Rs. {{ number_format($total, 0) }}
                 </span>
             </div>
 
             <button wire:click="processCheckout"
                     wire:loading.attr="disabled"
-                    class="w-full bg-[#52c234] text-gray-800 py-3.5 text-xs font-black
+                    class="w-full bg-primary second py-3.5 text-xs font-black
                            uppercase tracking-widest rounded-xl transition-all duration-300
                            flex items-center justify-center gap-2.5 shadow-lg shadow-black/10
                            hover:bg-gray-800 hover:text-white active:scale-[0.985]

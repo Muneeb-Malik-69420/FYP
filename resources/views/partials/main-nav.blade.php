@@ -53,9 +53,18 @@
         </a>
 
         {{-- FAVORITES --}}
-        <a href="#" class="{{ $iconClass }}">
-            <i class="far fa-heart"></i>
-        </a>
+@auth
+<button onclick="window.dispatchEvent(new CustomEvent('open-favourites'))"
+        class="{{ $iconClass }}">
+    <i class="far fa-heart"></i>
+    @php $favCount = auth()->user()->favourites()->count(); @endphp
+    @if($favCount > 0)
+        <span class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-black h-4 w-4 rounded-full flex items-center justify-center leading-none">
+            {{ $favCount > 9 ? '9+' : $favCount }}
+        </span>
+    @endif
+</button>
+@endauth
 
         {{-- CART --}}
         <a href="#" class="{{ $iconClass }}">
