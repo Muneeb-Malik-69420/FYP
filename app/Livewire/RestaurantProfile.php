@@ -32,15 +32,9 @@ class RestaurantProfile extends Component
     public function setCategory(string $category): void
     {
         $this->activeCategory = $category;
-        // No dispatch needed — render() reacts to property change automatically
     }
 
-    /**
-     * Livewire calls this automatically when $search changes via wire:model.
-     * Nothing extra needed — render() re-runs on any property update.
-     */
-
-    public function addToBasket(int $itemId): void
+    public function addToBasket(int $itemId, int $qty = 1): void
     {
         $item = FoodItem::where('supplier_id', $this->supplier->id)
             ->where('status', 'available')
@@ -49,25 +43,34 @@ class RestaurantProfile extends Component
         $cart = session()->get('cart', []);
 
         if (isset($cart[$itemId])) {
-            // Respect stock ceiling
-            if ($cart[$itemId]['quantity'] >= $item->quantity) {
-                $this->dispatch('show-toast', message: 'No more stock available!', type: 'error');
+            $newQty = $cart[$itemId]['quantity'] + $qty;
+
+            if ($newQty > $item->quantity) {
+                $this->dispatch('show-toast', message: 'Not enough stock available!', type: 'error');
                 return;
             }
-            $cart[$itemId]['quantity']++;
+
+            $cart[$itemId]['quantity'] = $newQty;
         } else {
+            if ($qty > $item->quantity) {
+                $this->dispatch('show-toast', message: 'Not enough stock available!', type: 'error');
+                return;
+            }
+
             $cart[$itemId] = [
                 'name'           => $item->item_name,
                 'price'          => (float) $item->discounted_price,
                 'original_price' => (float) $item->original_price,
-                'quantity'       => 1,
+                'quantity'       => $qty,
                 'image'          => $item->image_path,
+                'max_quantity'   => $item->quantity,
             ];
         }
 
         session()->put('cart', $cart);
 
         $this->dispatch('cartUpdated');
+        $this->dispatch('cart-updated', count: array_sum(array_column(session()->get('cart', []), 'quantity')));
         $this->dispatch('show-toast', message: "Added {$item->item_name} to basket!");
     }
 
@@ -75,6 +78,7 @@ class RestaurantProfile extends Component
     {
         return $this->redirect(route('Home'), navigate: true);
     }
+
     public function toggleFavourite(): void
     {
         if (!auth()->check()) return;
@@ -101,7 +105,6 @@ class RestaurantProfile extends Component
 
     public function render()
     {
-        // Categories for this supplier
         $categories = FoodItem::where('supplier_id', $this->supplier->id)
             ->where('status', 'available')
             ->distinct()
@@ -111,24 +114,21 @@ class RestaurantProfile extends Component
             ->prepend('All Deals')
             ->values();
 
-        // Filtered deals query
         $foodItems = FoodItem::where('supplier_id', $this->supplier->id)
             ->where('status', 'available')
             ->when(
                 $this->activeCategory !== 'All Deals',
-                fn($q) =>
-                $q->where('category', $this->activeCategory)
+                fn($q) => $q->where('category', $this->activeCategory)
             )
             ->when(
                 trim($this->search) !== '',
-                fn($q) =>
-                $q->where(function ($sub) {
+                fn($q) => $q->where(function ($sub) {
                     $term = '%' . trim($this->search) . '%';
                     $sub->where('item_name',   'like', $term)
                         ->orWhere('description', 'like', $term);
                 })
             )
-            ->orderByRaw('quantity > 0 DESC') // sold-out items sink to bottom
+            ->orderByRaw('quantity > 0 DESC')
             ->orderBy('created_at', 'desc')
             ->get();
 

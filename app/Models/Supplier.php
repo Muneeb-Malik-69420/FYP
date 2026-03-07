@@ -7,25 +7,75 @@ use Illuminate\Database\Eloquent\Model;
 class Supplier extends Model
 {
     protected $fillable = [
-        'user_id',           // Add this to fix the error
-        'city_id',           // Necessary for our new location logic
+        'user_id',
+        'city_id',
         'business_name',
         'business_type',
         'business_location',
         'license_document',
         'is_verified',
         'status',
-        'cover_photo'
-
+        'cover_photo',
     ];
-    public function getThumbnail()
+
+    // -------------------------------------------------------------------------
+    // Relationships
+    // -------------------------------------------------------------------------
+
+    public function city()
     {
-        // 1. If supplier uploaded a photo, show it
+        return $this->belongsTo(City::class);
+    }
+
+    public function foodItems()
+    {
+        return $this->hasMany(FoodItem::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function favourites()
+    {
+        return $this->hasMany(Favourite::class);
+    }
+
+    // -------------------------------------------------------------------------
+    // Dynamic rating attributes
+    // -------------------------------------------------------------------------
+
+    public function getRatingAttribute(): string
+    {
+        $avg = $this->reviews()->avg('rating');
+        return $avg ? number_format($avg, 1) : '0.0';
+    }
+
+    public function getReviewCountAttribute(): int
+    {
+        return $this->reviews()->count();
+    }
+
+    public function getReviewCountLabelAttribute(): string
+    {
+        $count = $this->reviewCount;
+        if ($count >= 1000) return round($count / 1000, 1) . 'k';
+        if ($count >= 500) return '500+';
+        if ($count >= 100) return '100+';
+        return (string) $count;
+    }
+
+    // -------------------------------------------------------------------------
+    // Thumbnail helper
+    // -------------------------------------------------------------------------
+
+    public function getThumbnail(): string
+    {
         if ($this->cover_photo) {
             return asset('storage/' . $this->cover_photo);
         }
 
-        // 2. Fallback based on your existing business_type column
         $placeholders = [
             'Bakery'     => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=800',
             'Restaurant' => 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800',
@@ -34,16 +84,6 @@ class Supplier extends Model
             'Fast Food'  => 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?q=80&w=800',
         ];
 
-        // Returns the matching image or a general food image if the type doesn't match the list
         return $placeholders[$this->business_type] ?? 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=800';
     }
-
-    public function city()
-    {
-        return $this->belongsTo(City::class);
-    }
-    public function foodItems()
-{
-    return $this->hasMany(FoodItem::class);
-}
 }

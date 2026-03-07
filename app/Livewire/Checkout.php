@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Notification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Support\Facades\Auth;
@@ -23,8 +24,6 @@ class Checkout extends Component
 
     // -------------------------------------------------------------------------
     // Form fields
-    // Guest fills all. Auth users only need address confirmed
-    // (name/email/phone pre-filled from profile).
     // -------------------------------------------------------------------------
 
     public string $name          = '';
@@ -49,7 +48,6 @@ class Checkout extends Component
 
         $this->recalculate();
 
-        // Pre-fill from profile for authenticated users
         if (Auth::check()) {
             $user          = Auth::user();
             $this->name    = $user->username ?? $user->name  ?? '';
@@ -66,12 +64,11 @@ class Checkout extends Component
     protected function rules(): array
     {
         $rules = [
-            'address'      => ['required', 'string', 'min:10'],
-            'notes'        => ['nullable', 'string', 'max:500'],
+            'address'       => ['required', 'string', 'min:10'],
+            'notes'         => ['nullable', 'string', 'max:500'],
             'paymentMethod' => ['required', 'in:cod,card'],
         ];
 
-        // Guests must supply contact details; auth users already have them
         if (! Auth::check()) {
             $rules['name']  = ['required', 'string', 'min:3'];
             $rules['email'] = ['required', 'email'];
@@ -102,9 +99,8 @@ class Checkout extends Component
     {
         $this->validate();
 
-        $user = Auth::user(); // null for guests
+        $user = Auth::user();
 
-        // Opportunistically save any new contact info back to the profile
         if ($user) {
             $patch = [];
             if (empty($user->phone)   && filled($this->phone))   $patch['phone']   = $this->phone;
@@ -115,29 +111,25 @@ class Checkout extends Component
         // ── Create order + line items ────────────────────────────────────────
         try {
             $order = DB::transaction(function () use ($user) {
-                if ($user) {
-                    $order = Order::create([
-                        'user_id'          => $user->id,
-                        'total_amount'     => $this->total,
-                        'status'           => 'pending',
-                        'payment_method'   => $this->paymentMethod,
-                        'delivery_address' => $this->address,
-                        'phone'            => $user->phone ?: $this->phone,
-                        'notes'            => $this->notes ?: null,
-                    ]);
-                } else {
-                    $order = Order::create([
-                        'user_id'          => null,
-                        'guest_name'       => $this->name,
-                        'guest_email'      => $this->email,
-                        'total_amount'     => $this->total,
-                        'status'           => 'pending',
-                        'payment_method'   => $this->paymentMethod,
-                        'delivery_address' => $this->address,
-                        'phone'            => $this->phone,
-                        'notes'            => $this->notes ?: null,
-                    ]);
-                }
+                $order = Order::create($user ? [
+                    'user_id'          => $user->id,
+                    'total_amount'     => $this->total,
+                    'status'           => 'pending',
+                    'payment_method'   => $this->paymentMethod,
+                    'delivery_address' => $this->address,
+                    'phone'            => $user->phone ?: $this->phone,
+                    'notes'            => $this->notes ?: null,
+                ] : [
+                    'user_id'          => null,
+                    'guest_name'       => $this->name,
+                    'guest_email'      => $this->email,
+                    'total_amount'     => $this->total,
+                    'status'           => 'pending',
+                    'payment_method'   => $this->paymentMethod,
+                    'delivery_address' => $this->address,
+                    'phone'            => $this->phone,
+                    'notes'            => $this->notes ?: null,
+                ]);
 
                 foreach ($this->cart as $productId => $item) {
                     OrderItem::create([
@@ -200,8 +192,20 @@ class Checkout extends Component
         // ── Cash on Delivery ─────────────────────────────────────────────────
         $order->update(['status' => 'confirmed']);
         session()->forget('cart');
-        $this->dispatch('show-toast', message: 'Order placed successfully!');
 
+        if ($user) {
+            Notification::create([
+                'user_id' => $user->id,
+                'type'    => 'order_placed',
+                'title'   => 'Order Confirmed!',
+                'body'    => 'Your order #' . $order->id . ' has been placed successfully. Rs. ' . number_format($this->total) . ' · Cash on Delivery',
+                'icon'    => 'fas fa-check-circle',
+                'link'    => route('order.success'),
+            ]);
+        }
+$this->dispatch('notification-created');
+
+        $this->dispatch('show-toast', message: 'Order placed successfully!');
         return redirect()->route('order.success');
     }
 

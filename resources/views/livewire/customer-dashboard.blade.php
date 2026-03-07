@@ -51,11 +51,11 @@
                                         {{ $supplier->business_name }}
                                     </h4>
                                     <div class="flex items-center gap-1 shrink-0 pt-0.5">
-                                        <i class="fas fa-star text-orange-400 text-[7px]"></i>
-                                        <span class="text-gray-900 font-black text-[9px]">
-                                            {{ $supplier->average_rating ? number_format($supplier->average_rating, 1) : '4.9' }}
-                                        </span>
-                                    </div>
+    <i class="fas fa-star text-orange-400 text-[7px]"></i>
+    <span class="text-gray-900 font-black text-[9px]">
+        {{ $supplier->rating }}
+    </span>
+</div>
                                 </div>
                                 <div class="mt-1 flex items-start text-gray-500">
                                     <i class="fas fa-map-marker-alt text-[7px] mr-1.5 mt-0.5 shrink-0" aria-hidden="true"></i>

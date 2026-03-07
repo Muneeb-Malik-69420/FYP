@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Notification;
 use App\Models\Order;
 use Livewire\Component;
 
@@ -22,17 +23,24 @@ class OrderSuccess extends Component
             $this->customerName = $this->order->guest_name ?? '—';
         }
 
-        \Log::info('OrderSuccess debug', [
-            'auth_id'       => auth()->id(),
-            'auth_name'     => auth()->user()?->name,
-            'auth_username' => auth()->user()?->username,
-            'customerName'  => $this->customerName,
-        ]);
-
         // Only confirm genuinely pending orders — prevents re-confirming on refresh
         if ($this->order->status === 'pending') {
             $this->order->update(['status' => 'confirmed']);
             $this->order->refresh();
+
+            // Card payment notification (COD is handled in Checkout.php)
+            if (auth()->check() && $this->order->payment_method === 'card') {
+                Notification::create([
+                    'user_id' => auth()->id(),
+                    'type'    => 'order_placed',
+                    'title'   => 'Payment Confirmed!',
+                    'body'    => 'Your order #' . $this->order->id . ' payment was successful. Rs. ' . number_format($this->order->total_amount) . ' · Card',
+                    'icon'    => 'fas fa-credit-card',
+                    'link'    => null,
+                ]);
+                $this->dispatch('notification-created');
+
+            }
         }
 
         // Auth users must own the order

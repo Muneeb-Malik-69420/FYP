@@ -18,12 +18,35 @@
             </div>
 
             @if(!empty($cart))
-                <button wire:click="clearBasket"
-                        wire:confirm="Clear your entire basket?"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200
-                               text-[10px] font-black uppercase tracking-wider text-red-600
-                               hover:text-red-500 hover:border-red-200 hover:bg-red-50
-                               transition-all duration-200">
+                <button
+                    @click.prevent="
+                        Swal.fire({
+                            title: 'Clear Basket?',
+                            text: 'This will remove all items from your basket.',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes, clear it',
+                            cancelButtonText: 'Cancel',
+                            confirmButtonColor: '#111111',
+                            cancelButtonColor: '#f3f4f6',
+                            customClass: {
+                                cancelButton: '!text-gray-700',
+                                popup: '!rounded-2xl !font-sans',
+                                title: '!text-sm !font-black !uppercase !tracking-widest',
+                                htmlContainer: '!text-xs !text-gray-400',
+                                confirmButton: '!rounded-xl !text-xs !font-black !uppercase !tracking-widest',
+                                cancelButton: '!rounded-xl !text-xs !font-black !uppercase !tracking-widest'
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $wire.clearBasket()
+                            }
+                        })
+                    "
+                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200
+                           text-[10px] font-black uppercase tracking-wider text-red-600
+                           hover:text-red-500 hover:border-red-200 hover:bg-red-50
+                           transition-all duration-200">
                     <i class="fas fa-trash-alt text-[8px]"></i>
                     Empty
                 </button>
@@ -41,23 +64,15 @@
                                  hover:bg-gray-100 border border-transparent hover:border-gray-200
                                  transition-all duration-200 animate-fadeIn">
 
-                        {{-- Thumbnail with physical check --}}
+                        {{-- Thumbnail --}}
                         <div class="w-11 h-11 rounded-lg bg-white overflow-hidden border border-gray-200 shrink-0 shadow-sm flex items-center justify-center">
                             @php
                                 $hasImage = !empty($item['image']) && Illuminate\Support\Facades\Storage::disk('public')->exists($item['image']);
                             @endphp
-
-                            @if($hasImage)
-                                <img src="{{ asset('storage/' . $item['image']) }}"
-                                     class="w-full h-full object-cover"
-                                     alt="{{ $item['name'] }}"
-                                     loading="lazy">
-                            @else
-                                <<img src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=200"
-                                     class="w-full h-full object-cover"
-                                     alt="{{ $item['name'] }}"
-                                     loading="lazy">
-                            @endif
+                            <img src="{{ $hasImage ? asset('storage/' . $item['image']) : 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=200' }}"
+                                 class="w-full h-full object-cover"
+                                 alt="{{ $item['name'] }}"
+                                 loading="lazy">
                         </div>
 
                         {{-- Details --}}
@@ -154,12 +169,10 @@
                            flex items-center justify-center gap-2.5 shadow-lg shadow-black/10
                            hover:bg-gray-800 hover:text-white active:scale-[0.985]
                            disabled:opacity-50 disabled:cursor-not-allowed">
-
                 <span wire:loading.remove wire:target="processCheckout" class="flex items-center gap-2">
                     <i class="fas fa-lock text-[10px] opacity-60"></i>
                     Checkout
                 </span>
-
                 <span wire:loading wire:target="processCheckout" class="flex items-center gap-2">
                     <div class="w-3 h-3 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
                     Processing...

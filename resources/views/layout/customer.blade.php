@@ -11,7 +11,8 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    {{-- <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet"> --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 m-0 p-0 font-sans antialiased text-gray-900 min-h-screen flex flex-col">
 
@@ -24,6 +25,10 @@
         {{ $slot ?? '' }} {{-- This allows it to work with both Layouts and Components --}}
     </main>
  @livewire('favourites-panel')
+ @livewire('cart-drawer')
+ @livewire('review-prompt')
+@livewire('notifications-panel')  {{-- ADD --}}
+
     @livewireScripts
     @yield('scripts')
     

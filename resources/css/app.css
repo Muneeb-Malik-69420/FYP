@@ -29,6 +29,27 @@
     --animation-fade-in: fade-in 0.4s ease-out forwards;
 }
 
+
+@keyframes cartItemEnter {
+    0% {
+        opacity:0;
+        transform:translateX(30px) scale(0.95);
+    }
+    60% {
+        opacity:1;
+        transform:translateX(-4px) scale(1.02);
+    }
+    80% {
+        transform:translateX(2px) scale(0.99);
+    }
+    100% {
+        transform:translateX(0) scale(1);
+    }
+}
+
+.cart-enter {
+    animation:cartItemEnter .45s cubic-bezier(.22,1,.36,1);
+}
 /* Custom Utility for No-Scrollbar */
 @utility no-scrollbar {
     -ms-overflow-style: none;

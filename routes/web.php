@@ -45,6 +45,10 @@ Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'
 
 Route::get('/', CustomerDashboard::class)->name('Home');
 
+Route::get('/cart-count', function () {
+    $count = array_sum(array_column(session()->get('cart', []), 'quantity'));
+    return response()->json(['count' => $count]);
+})->middleware('auth');
 
 Route::middleware('auth')->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
